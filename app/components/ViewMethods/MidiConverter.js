@@ -54,7 +54,7 @@ export default class MidiConverterMethods extends TextConverter {
                 lump: nextLump || nextLumpInQueue,
             });
         }, () => this.restartConvertingWads({ nextLump, nextWadId }),
-        { displayErrorMessage: this.midiConverterRetries === WEB_WORKER_MAX_RETRIES });
+            { displayErrorMessage: this.midiConverterRetries === WEB_WORKER_MAX_RETRIES });
     }
 
     saveConvertedMidi = (payload) => {
@@ -86,7 +86,6 @@ export default class MidiConverterMethods extends TextConverter {
         });
     }
 
-    // TODO: this method is now broken; it should look deeper into the midis object (wadId -> lumpType -> lump)
     selectFirstMidi = ({ midis }) => {
         const { wads, selectedMidi } = this.state;
 
@@ -99,42 +98,47 @@ export default class MidiConverterMethods extends TextConverter {
         if (wadIds.length > 0) {
             const firstWadId = wadIds[0];
 
-            const midiIds = Object.keys(midis[firstWadId]);
+            const lumpTypes = Object.keys(midis[firstWadId]);
 
-            if (midiIds.length > 0) {
-                const firstMidiId = midiIds[0];
-                const firstMidiData = midis[firstWadId][firstMidiId];
-                const wad = wads[firstWadId];
-                const lump = wad && wad.lumps && wad.lumps.music && wad.lumps.music[firstMidiId];
+            if (lumpTypes.length > 0) {
+                const firstLumpType = lumpTypes[0];
+                const midiIds = Object.keys(midis[firstWadId][firstLumpType]);
 
-                if (!lump) {
-                    return;
-                }
+                if (midiIds.length > 0) {
+                    const firstMidiId = midiIds[0];
+                    const firstMidiData = midis[firstWadId][firstLumpType][firstMidiId];
+                    const wad = wads[firstWadId];
+                    const lump = wad && wad.lumps && wad.lumps.music && wad.lumps.music[firstMidiId];
 
-                if (mediaSessionSupported && !mediaSessionIgnored) {
-                    const wadName = wad ? wad.name : '';
+                    if (!lump) {
+                        return;
+                    }
 
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: lump.name,
-                        artist: wadName,
+                    if (mediaSessionSupported && !mediaSessionIgnored) {
+                        const wadName = wad ? wad.name : '';
+
+                        navigator.mediaSession.metadata = new MediaMetadata({
+                            title: lump.name,
+                            artist: wadName,
+                        });
+                    }
+
+                    this.setState(() => {
+                        const newlySelectedMidi = {
+                            data: firstMidiData,
+                            lumpName: lump.name,
+                            lumpType: lump.type,
+                            wadId: firstWadId,
+                            startedAt: 0,
+                            time: 0,
+                        };
+
+                        return {
+                            selectedMidi: newlySelectedMidi,
+                            preselectedMidi: true,
+                        };
                     });
                 }
-
-                this.setState(() => {
-                    const newlySelectedMidi = {
-                        data: firstMidiData,
-                        lumpName: lump.name,
-                        lumpType: lump.type,
-                        wadId: firstWadId,
-                        startedAt: 0,
-                        time: 0,
-                    };
-
-                    return {
-                        selectedMidi: newlySelectedMidi,
-                        preselectedMidi: true,
-                    };
-                });
             }
         }
     }
