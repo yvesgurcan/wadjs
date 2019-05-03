@@ -312,7 +312,7 @@ onmessage = async (message) => {
             data,
         } = lump;
 
-        console.log(`Parsing map '${type}/${name}' (WAD: '${wadId}') ...`);
+        // console.log(`Parsing map '${type}/${name}' (WAD: '${wadId}') ...`);
 
         let mapData = {};
         try {
@@ -348,7 +348,7 @@ onmessage = async (message) => {
 
         // console.log(`Parsed map '${type}/${name}' (WAD: '${wadId}') ...`);
 
-        console.log({ mapData });
+        // console.log({ mapData });
 
         postMessage({
             wadId,

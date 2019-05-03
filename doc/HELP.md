@@ -36,7 +36,7 @@ Clicking on ![trash](./static/trash.svg) will remove the WAD from your list.
 
 Clicking on ![code file](./static/codefile.svg) will export the WADs as a JSON file that can be imported to wadJS later.
 
-## Lump Types
+## Lumps
 
 You can select the type of lumps you wish to view within a selected WAD.
 

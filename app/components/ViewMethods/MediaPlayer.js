@@ -84,6 +84,7 @@ export default class MediaPlayer extends Component {
         const nextMidiData = this.getMidiData({
             convertedMidis,
             wadId,
+            lumpType,
             midiName,
         });
 
@@ -111,11 +112,13 @@ export default class MediaPlayer extends Component {
     getMidiData = ({
         convertedMidis,
         wadId,
+        lumpType,
         midiName,
     }) => (
         convertedMidis[wadId]
             && convertedMidis[wadId]
-            && convertedMidis[wadId][midiName]
+            && convertedMidis[wadId][lumpType]
+            && convertedMidis[wadId][lumpType][midiName]
     )
 
     // note: this will only get MIDIs that are in the same lumpType of the WAD as the selected MIDI
@@ -141,7 +144,7 @@ export default class MediaPlayer extends Component {
 
         const { wadId, lumpName, lumpType } = selectedMidi;
         const { converted: convertedMidis } = midis;
-        const currentWadMidiIds = Object.keys(convertedMidis[wadId]);
+        const currentWadMidiIds = Object.keys(convertedMidis[wadId][lumpType]);
 
         const selectedMidiIndex = currentWadMidiIds.findIndex(midiId => midiId === lumpName);
 
@@ -174,7 +177,7 @@ export default class MediaPlayer extends Component {
                         wadId: firstWadId,
                         convertedMidis,
                         midiName: nextMidiName,
-                        lumpType, // warning: this will need to change!
+                        lumpType,
                     });
 
                     if (nextMidi) {
@@ -255,13 +258,6 @@ export default class MediaPlayer extends Component {
         time,
         ...payload
     }) => {
-        // debug
-        if (event !== MIDI_PLAY) {
-            console.log({
-                event, message, time, payload,
-            });
-        }
-
         switch (event) {
             default: {
                 if (message) {
