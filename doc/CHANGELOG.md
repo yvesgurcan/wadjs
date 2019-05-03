@@ -1,3 +1,7 @@
+# v0.3.5: Fix Midi player
+
+* Since we opened Web Worker jobs to all lump types, it was necessary to fix the logic that allowed the Midi Player to automatically fetch the first converted Midi. Also fixed how to find the next Midi to play. C'est chose faites !
+
 ## v0.3.4: Web Worker safety net
 
 * After noticing that web workers can fail on devices with less memory, I implemented logic to retry spawning them.
