@@ -72,6 +72,14 @@ export default class Lump {
         return /TEXTURE[0-9a-zA-Z]$/.test(this.name);
     }
 
+    get isColormaps() {
+        return this.type === 'colormaps';
+    }
+
+    get isPalettes() {
+        return this.type === 'palettes';
+    }
+
     get isSNDINFO() {
         return this.name === SNDINFO;
     }
