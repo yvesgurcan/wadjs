@@ -46,17 +46,20 @@ export default class ServiceWorker extends WebWorkers {
         });
     }
 
-    listenForServiceWokerUpdate(registration) {
+    // look for SW updates
+    async listenForServiceWokerUpdate(registration) {
         if (!registration) return null;
 
-        // look for SW updates
-        registration.addEventListener('updatefound', () => {
+        // trigger update check manually
+        const updatedRegistration = await registration.update();
+
+        updatedRegistration.addEventListener('updatefound', () => {
             // the state of the installing SW has changed
-            registration.installing.addEventListener('statechange', (event) => {
-                console.log('statechange', event.target.state, registration);
+            updatedRegistration.installing.addEventListener('statechange', (event) => {
+                console.log('statechange', event.target.state, updatedRegistration);
                 // ready for activation
                 if (event.target.state === 'installed') {
-                    this.promptUserToRefreshApp(registration);
+                    this.promptUserToRefreshApp(updatedRegistration);
                 }
 
                 // activated
@@ -66,7 +69,7 @@ export default class ServiceWorker extends WebWorkers {
             });
         });
 
-        if (registration.waiting) return this.promptUserToRefreshApp(registration);
+        if (updatedRegistration.waiting) return this.promptUserToRefreshApp(updatedRegistration);
         return null;
     }
 
