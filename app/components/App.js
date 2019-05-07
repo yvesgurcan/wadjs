@@ -522,10 +522,16 @@ export default class App extends AllMethods {
     handleSettingChange = async ({ key, value, type }) => {
         if (key === 'offlineMode') {
             if (value) {
+                this.addGlobalMessage({
+                    type: 'info',
+                    id: 'offlineMode',
+                    text: 'Enabling offline access...',
+                });
                 const { error } = await this.registerCoreServiceWorker();
                 if (error) {
                     return;
                 }
+                this.dismissGlobalMessage('offlineMode');
             } else {
                 this.unregisterServiceWorkers({ targetScriptURL: SERVICE_WORKER_CORE });
             }
