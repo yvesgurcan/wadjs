@@ -1,7 +1,9 @@
 import PCMConverter from './PCMConverter';
 
+import Lump from '../../models/Lump';
 import { WEB_WORKER_MAX_RETRIES } from '../../lib/constants';
 import mapParser from '../../webWorkers/mapParser';
+import cloneDataView from '../../lib/cloneDataView';
 
 export default class MapParser extends PCMConverter {
     startMapParserWorker = () => {
@@ -21,6 +23,14 @@ export default class MapParser extends PCMConverter {
             handleNextLump: this.sendNextMapLump,
             wad,
         });
+    }
+
+    cloneLump = (lump) => {
+        const data = lump && cloneDataView(lump.data);
+
+        const updatedLump = new Lump();
+        updatedLump.setIndexData({ ...lump, data });
+        return updatedLump;
     }
 
     sendNextMapLump = ({ nextLump, nextWadId }) => {
@@ -52,17 +62,29 @@ export default class MapParser extends PCMConverter {
                 THINGS,
             } = data;
 
+            const clones = {};
+            clones.SECTORS = this.cloneLump(SECTORS);
+            clones.LINEDEFS = this.cloneLump(LINEDEFS);
+            clones.SIDEDEFS = this.cloneLump(SIDEDEFS);
+            clones.VERTEXES = this.cloneLump(VERTEXES);
+            clones.THINGS = this.cloneLump(THINGS);
+
             const trimmedLump = {
                 name,
                 type,
                 data: {
-                    SECTORS,
-                    LINEDEFS,
-                    SIDEDEFS,
-                    VERTEXES,
-                    THINGS,
+                    SECTORS: clones.SECTORS,
+                    LINEDEFS: clones.LINEDEFS,
+                    SIDEDEFS: clones.SIDEDEFS,
+                    VERTEXES: clones.VERTEXES,
+                    THINGS: clones.THINGS,
                 },
             };
+
+            const c = Object.keys(clones).map(cloneId => clones[cloneId].data);
+
+            console.log({ clones });
+
             this.mapParser.postMessage({
                 wadId: nextWadId,
                 lump: trimmedLump,
