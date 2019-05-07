@@ -1,3 +1,7 @@
+# v0.3.6: Hotfix on Text Converter worker
+
+* Fix typo.
+
 # v0.3.5: Fix Midi player
 
 * Since we opened Web Worker jobs to all lump types, it was necessary to fix the logic that allowed the Midi Player to automatically fetch the first converted Midi. Also fixed how to find the next Midi to play. C'est chose faites !
