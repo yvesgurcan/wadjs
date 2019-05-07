@@ -40,7 +40,7 @@ export default class TextConverterMethods extends SimpleImageConverter {
                 lump: nextLump || nextLumpInQueue,
             });
         }, () => this.restartConvertingWads({ nextLump, nextWadId }),
-            { displayErrorMessage: this.textConverterRetries === WEB_WORKER_MAX_RETRIES });
+        { displayErrorMessage: this.textConverterRetries === WEB_WORKER_MAX_RETRIES });
     }
 
     saveConvertedText = (payload) => {
