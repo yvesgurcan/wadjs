@@ -76,7 +76,7 @@ onmessage = async (message) => {
         const {
             type: lumpType,
             name: lumpId,
-            date: input,
+            data: input,
         } = lump;
 
         // console.log(`Converting '${lumpType}/${lumpId}' to text (WAD: '${wadId}') ...`);
