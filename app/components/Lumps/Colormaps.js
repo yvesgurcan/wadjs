@@ -2,13 +2,21 @@ import React from 'react';
 
 import style from './Colormaps.scss';
 
-export default ({ wad, lump }) => (
-    (lump.data && lump.data.map((colormap, index) => (
+export default ({ wad, lump, firstColormapOnly }) => {
+    if (!lump.data) {
+        return null;
+    }
+
+    const colormaps = firstColormapOnly ? [lump.data[0]] : lump.data;
+
+    return (colormaps.map((colormap, index) => (
         <div key={index}>
-            <h5>
-                Colormap #
-                {index}
-            </h5>
+            {!firstColormapOnly && (
+                <h5>
+                    Colormap #
+                    {index}
+                </h5>
+            )}
             <div className={style.colormapColorList}>
                 {colormap.map((colorIndex, index) => {
                     const palette0 = wad.lumps.palettes.PLAYPAL.data[0];
@@ -24,5 +32,5 @@ export default ({ wad, lump }) => (
                 })}
             </div>
         </div>
-    ))) || null
-);
+    ))) || null;
+};

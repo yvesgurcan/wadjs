@@ -2,13 +2,21 @@ import React from 'react';
 
 import style from './Palettes.scss';
 
-export default ({ lump }) => (
-    (lump.data && lump.data.map((palette, index) => (
+export default ({ lump, firstPalettesOnly }) => {
+    if (!lump.data) {
+        return null;
+    }
+
+    const palettes = firstPalettesOnly ? [lump.data[0]] : lump.data;
+
+    return (palettes.map((palette, index) => (
         <div key={index}>
-            <h5>
-                Palette #
-                {index}
-            </h5>
+            {!firstPalettesOnly && (
+                <h5>
+                    Palette #
+                    {index}
+                </h5>
+            )}
             <div className={style.paletteColorList}>
                 {palette.map(({ red, green, blue }, index) => (
                     <div
@@ -20,5 +28,5 @@ export default ({ lump }) => (
                 ))}
             </div>
         </div>
-    ))) || null
-);
+    ))) || null;
+};

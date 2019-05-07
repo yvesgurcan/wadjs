@@ -8,6 +8,8 @@ import WadLumpDetails from './WadLumpDetails';
 import Midi from '../AudioPlayers/Midi';
 import PCM from '../AudioPlayers/PCM';
 import Map from '../Lumps/Map';
+import Palettes from '../Lumps/Palettes';
+import Colormaps from '../Lumps/Colormaps';
 import ErrorMessage from '../Messages/ErrorMessage';
 
 const { supported: offscreenCanvasSupported } = offscreenCanvasSupport();
@@ -96,6 +98,19 @@ export default ({
                         <Map
                             previewOnly
                             map={map}
+                            lump={lump}
+                            wad={wad}
+                        />
+                    )}
+                    {lump.isPalettes && (
+                        <Palettes
+                            firstPalettesOnly
+                            lump={lump}
+                        />
+                    )}
+                    {lump.isColormaps && (
+                        <Colormaps
+                            firstColormapOnly
                             lump={lump}
                             wad={wad}
                         />
