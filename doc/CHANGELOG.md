@@ -1,3 +1,7 @@
+# v0.3.9: Smaller DataViews
+
+* In order to prevent the out of memory issue with web workers, I've added logic to shrink the size of the DataViews passed to the map parser.
+
 # v0.3.8: Preview palettes and colormaps
 
 * You can now see the first palette or first colormap of a lump without having to opening it fully.
