@@ -8,7 +8,7 @@
 
 # v0.3.7: Fix Service Worker not updating on Chrome
 
-* There was a discrepancy between Firefox and Chrome. The former was accurately catching Service Worker updates, while the latter was not triggering the desired behavior. With a simple fix, I believe that all browsers should not behave uniformly when a new Service Worker is available to users.
+* There was a discrepancy between Firefox and Chrome. The former was accurately catching Service Worker updates, while the latter was not triggering the desired behavior. With a simple fix, I believe that all browsers should now behave uniformly when a new Service Worker is available to users.
 
 # v0.3.6: Hotfix on Text Converter worker
 
