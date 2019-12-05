@@ -1,3 +1,7 @@
+
+class LibTimidity {
+    constructor() {
+
 // Note: For maximum-speed code, see "Optimizing Code" on the Emscripten wiki, https://github.com/kripken/emscripten/wiki/Optimizing-Code
 // Note: Some Emscripten settings may limit the speed of the generated code.
 
@@ -57,7 +61,7 @@ if (ENVIRONMENT_IS_WEB) {
       console.log(x);
     };
     Module['printErr'] = function(x) {
-      console.log(x);
+      console.warn(x);
     };
   } else {
     // Probably a worker, and without console.log. We can do very little here...
@@ -5272,3 +5276,12 @@ if (Module['noInitialRun']) {
 }
 
 run();
+this.Module = Module;
+}
+}
+
+const libtimidity = new LibTimidity();
+
+console.log(libtimidity.Module);
+
+export default libtimidity.Module;

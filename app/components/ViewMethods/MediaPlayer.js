@@ -16,17 +16,17 @@ import {
     PCM_STATUS,
     PCM_ERROR,
     PCM_PLAY,
-    PCM_END,
+    PCM_END
 } from '../../lib/constants';
 
 const {
     supported: mediaSessionSupported,
     ignored: mediaSessionIgnored,
-    message: mediaSessionMessage,
+    message: mediaSessionMessage
 } = mediaSessionSupport();
 
 export default class MediaPlayer extends Component {
-    dummyAudio = document.createElement('audio')
+    dummyAudio = document.createElement('audio');
 
     initMediaSession = () => {
         if (mediaSessionSupported) {
@@ -46,13 +46,17 @@ export default class MediaPlayer extends Component {
                         }
                     }
                 });
-                navigator.mediaSession.setActionHandler('pause', () => this.pauseMidi());
-                navigator.mediaSession.setActionHandler('nexttrack', () => this.selectNextMidi());
+                navigator.mediaSession.setActionHandler('pause', () =>
+                    this.pauseMidi()
+                );
+                navigator.mediaSession.setActionHandler('nexttrack', () =>
+                    this.selectNextMidi()
+                );
             } catch (error) {
                 this.addGlobalMessage({
                     type: 'error',
                     id: 'mediaSession',
-                    text: `An error occurred while initializing Media Session: ${error}`,
+                    text: `An error occurred while initializing Media Session: ${error}`
                 });
             }
         } else if (!mediaSessionIgnored) {
@@ -61,17 +65,17 @@ export default class MediaPlayer extends Component {
                 this.addGlobalMessage({
                     type: 'warning',
                     id: 'mediaSession',
-                    text: mediaSessionMessage,
+                    text: mediaSessionMessage
                 });
             }
         }
-    }
+    };
 
     initMidiPlayer = () => {
         this.midiPlayer = new MidiPlayer({
-            eventLogger: this.handleMidiPlayerEvent,
+            eventLogger: this.handleMidiPlayerEvent
         });
-    }
+    };
 
     // should not be necessary anymore: we have cache instead
     reconcileMidiLumpAndData = ({
@@ -79,13 +83,13 @@ export default class MediaPlayer extends Component {
         wadId,
         convertedMidis,
         midiName,
-        lumpType,
+        lumpType
     }) => {
         const nextMidiData = this.getMidiData({
             convertedMidis,
             wadId,
             lumpType,
-            midiName,
+            midiName
         });
 
         if (nextMidiData) {
@@ -93,7 +97,7 @@ export default class MediaPlayer extends Component {
                 wads,
                 wadId,
                 lumpType,
-                midiName,
+                midiName
             });
 
             if (nextMidiLump) {
@@ -101,38 +105,26 @@ export default class MediaPlayer extends Component {
                 return {
                     midiURL,
                     lump: nextMidiLump,
-                    wadId,
+                    wadId
                 };
             }
         }
 
         return false;
-    }
+    };
 
-    getMidiData = ({
-        convertedMidis,
-        wadId,
-        lumpType,
-        midiName,
-    }) => (
-        convertedMidis[wadId]
-            && convertedMidis[wadId]
-            && convertedMidis[wadId][lumpType]
-            && convertedMidis[wadId][lumpType][midiName]
-    )
+    getMidiData = ({ convertedMidis, wadId, lumpType, midiName }) =>
+        convertedMidis[wadId] &&
+        convertedMidis[wadId] &&
+        convertedMidis[wadId][lumpType] &&
+        convertedMidis[wadId][lumpType][midiName];
 
     // note: this will only get MIDIs that are in the same lumpType of the WAD as the selected MIDI
-    getMidiLump = ({
-        wads,
-        wadId,
-        lumpType,
-        midiName,
-    }) => (
-        wads[wadId]
-            && wads[wadId].lumps
-            && wads[wadId].lumps[lumpType]
-            && wads[wadId].lumps[lumpType][midiName]
-    )
+    getMidiLump = ({ wads, wadId, lumpType, midiName }) =>
+        wads[wadId] &&
+        wads[wadId].lumps &&
+        wads[wadId].lumps[lumpType] &&
+        wads[wadId].lumps[lumpType][midiName];
 
     selectNextMidi = () => {
         const { wads, selectedMidi, midis } = this.state;
@@ -146,7 +138,9 @@ export default class MediaPlayer extends Component {
         const { converted: convertedMidis } = midis;
         const currentWadMidiIds = Object.keys(convertedMidis[wadId][lumpType]);
 
-        const selectedMidiIndex = currentWadMidiIds.findIndex(midiId => midiId === lumpName);
+        const selectedMidiIndex = currentWadMidiIds.findIndex(
+            midiId => midiId === lumpName
+        );
 
         // we reached the last MIDI in the current WAD
         if (selectedMidiIndex >= currentWadMidiIds.length - 1) {
@@ -163,12 +157,17 @@ export default class MediaPlayer extends Component {
                 const firstWadId = wadIds[0];
 
                 const { settings } = this.state;
-                if (firstWadId === selectedMidi.wadId && !settings.playbackLoop) {
+                if (
+                    firstWadId === selectedMidi.wadId &&
+                    !settings.playbackLoop
+                ) {
                     this.clearMidiPlayer();
                     return false;
                 }
 
-                const nextWadMidiIds = Object.keys(convertedMidis[firstWadId] || {});
+                const nextWadMidiIds = Object.keys(
+                    convertedMidis[firstWadId] || {}
+                );
                 if (nextWadMidiIds.length > 0) {
                     const nextMidiName = nextWadMidiIds[0];
 
@@ -177,7 +176,7 @@ export default class MediaPlayer extends Component {
                         wadId: firstWadId,
                         convertedMidis,
                         midiName: nextMidiName,
-                        lumpType,
+                        lumpType
                     });
 
                     if (nextMidi) {
@@ -193,12 +192,17 @@ export default class MediaPlayer extends Component {
             // select first MIDI from next WAD that has MIDIs (if any)
             if (wadIds.length >= 2) {
                 const convertedMidiWadIds = Object.keys(convertedMidis || {});
-                const wadIndex = convertedMidiWadIds.findIndex(midiWadId => midiWadId === wadId);
+                const wadIndex = convertedMidiWadIds.findIndex(
+                    midiWadId => midiWadId === wadId
+                );
 
                 let index = wadIndex;
                 let interruptSearch = false;
                 while (!interruptSearch) {
-                    index = index + 1 > convertedMidiWadIds.length - 1 ? 0 : index + 1;
+                    index =
+                        index + 1 > convertedMidiWadIds.length - 1
+                            ? 0
+                            : index + 1;
 
                     const { settings } = this.state;
                     if (index === 0 && !settings.playbackLoop) {
@@ -207,7 +211,9 @@ export default class MediaPlayer extends Component {
                     }
 
                     const nextWadId = convertedMidiWadIds[index];
-                    const nextWadMidiIds = Object.keys(convertedMidis[nextWadId] || {});
+                    const nextWadMidiIds = Object.keys(
+                        convertedMidis[nextWadId] || {}
+                    );
 
                     if (nextWadMidiIds.length > 0) {
                         const nextMidiName = nextWadMidiIds[0];
@@ -217,7 +223,7 @@ export default class MediaPlayer extends Component {
                             wadId: nextWadId,
                             convertedMidis,
                             midiName: nextMidiName,
-                            lumpType, // warning: this will need to change!
+                            lumpType // warning: this will need to change!
                         });
 
                         if (nextMidi) {
@@ -241,7 +247,7 @@ export default class MediaPlayer extends Component {
                 wadId,
                 convertedMidis,
                 midiName: nextMidiName,
-                lumpType, // warning: this will need to change!
+                lumpType // warning: this will need to change!
             });
 
             if (nextMidi) {
@@ -250,21 +256,18 @@ export default class MediaPlayer extends Component {
         }
 
         return true;
-    }
+    };
 
-    handleMidiPlayerEvent = ({
-        event,
-        message,
-        time,
-        ...payload
-    }) => {
+    handleMidiPlayerEvent = ({ event, message, time, ...payload }) => {
+        // DEBUG
+        console.log({ event });
         switch (event) {
             default: {
                 if (message) {
                     this.addGlobalMessage({
                         type: 'info',
                         id: MIDI_STATUS,
-                        text: `${MIDI_PLAYER_MESSAGE_PREFIX} ${message}`,
+                        text: `${MIDI_PLAYER_MESSAGE_PREFIX} ${message}`
                     });
                 }
                 break;
@@ -274,7 +277,7 @@ export default class MediaPlayer extends Component {
                 this.addGlobalMessage({
                     type: 'error',
                     id: event,
-                    text: `${MIDI_PLAYER_MESSAGE_PREFIX} ${message}`,
+                    text: `${MIDI_PLAYER_MESSAGE_PREFIX} ${message}`
                 });
 
                 // reset the midi player
@@ -291,15 +294,17 @@ export default class MediaPlayer extends Component {
 
                 const roundedDownTime = Math.floor(time);
 
-                const { selectedMidi: { time: previousTime = 0 } } = this.state;
+                const {
+                    selectedMidi: { time: previousTime = 0 }
+                } = this.state;
                 // The time played don't get updated exactly every second
                 // the code below is the best approximation we can get based on how MIDI work
                 if (roundedDownTime >= previousTime) {
                     this.setState(prevState => ({
                         selectedMidi: {
                             ...prevState.selectedMidi,
-                            time: roundedDownTime,
-                        },
+                            time: roundedDownTime
+                        }
                     }));
                 }
 
@@ -315,37 +320,32 @@ export default class MediaPlayer extends Component {
                     selectedMidi: {
                         ...prevState.selectedMidi,
                         time: roundedDownTime,
-                        ended: true,
-                    },
+                        ended: true
+                    }
                 }));
 
-                const {
-                    settings,
-                    midis,
-                    wads,
-                    selectedMidi,
-                } = this.state;
+                const { settings, midis, wads, selectedMidi } = this.state;
 
                 if (settings.playNextTrack) {
                     this.selectNextMidi();
                 } else if (settings.playbackLoop) {
                     const { wadId, lumpType, lumpName } = selectedMidi;
                     if (
-                        wads[wadId]
-                        && wads[wadId].lumps
-                        && wads[wadId].lumps[lumpType]
-                        && wads[wadId].lumps[lumpType][lumpName]
-                        && midis
-                        && midis.converted
-                        && midis.converted[wadId]
-                        && midis.converted[wadId][lumpName]
+                        wads[wadId] &&
+                        wads[wadId].lumps &&
+                        wads[wadId].lumps[lumpType] &&
+                        wads[wadId].lumps[lumpType][lumpName] &&
+                        midis &&
+                        midis.converted &&
+                        midis.converted[wadId] &&
+                        midis.converted[wadId][lumpName]
                     ) {
                         const lump = wads[wadId].lumps[lumpType][lumpName];
                         const data = midis.converted[wadId][lumpName];
                         this.selectMidi({
                             midiURL: data,
                             lump,
-                            wadId,
+                            wadId
                         });
                     }
                 }
@@ -353,13 +353,9 @@ export default class MediaPlayer extends Component {
                 break;
             }
         }
-    }
+    };
 
-    selectMidi = async ({
-        midiURL,
-        lump,
-        wadId,
-    }) => {
+    selectMidi = async ({ midiURL, lump, wadId }) => {
         if (!this.midiPlayer) {
             this.initMidiPlayer();
         }
@@ -370,13 +366,24 @@ export default class MediaPlayer extends Component {
             const blob = new Blob([midiURL]);
             objectURL = URL.createObjectURL(blob);
         } else {
-            arrayBuffer = await getCacheItemAsArrayBuffer({ cacheId: wadId, requestURL: midiURL });
+            arrayBuffer = await getCacheItemAsArrayBuffer({
+                cacheId: wadId,
+                requestURL: midiURL
+            });
             if (!arrayBuffer) {
-                console.error(`Could not find cache item '${lump.type}/${lump.name}' in ${wadId}.`);
+                console.error(
+                    `Could not find cache item '${lump.type}/${
+                        lump.name
+                    }' in ${wadId}.`
+                );
             }
         }
 
-        const success = this.midiPlayer.play({ arrayBuffer, url: objectURL, name: lump.name });
+        const success = this.midiPlayer.play({
+            arrayBuffer,
+            url: objectURL,
+            name: lump.name
+        });
         if (!success) {
             return;
         }
@@ -388,7 +395,7 @@ export default class MediaPlayer extends Component {
 
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: lump.name,
-                artist: wadName,
+                artist: wadName
             });
         }
 
@@ -402,16 +409,18 @@ export default class MediaPlayer extends Component {
                 lumpName: lump.name,
                 lumpType: lump.type,
                 wadId,
-                startedAt: moment().utc().unix(),
+                startedAt: moment()
+                    .utc()
+                    .unix(),
                 time: 0,
-                paused: false,
+                paused: false
             };
 
             return {
-                selectedMidi,
+                selectedMidi
             };
         });
-    }
+    };
 
     resumeMidi = async () => {
         if (!this.midiPlayer) {
@@ -433,13 +442,24 @@ export default class MediaPlayer extends Component {
                 const blob = new Blob([data]);
                 objectURL = URL.createObjectURL(blob);
             } else {
-                arrayBuffer = await getCacheItemAsArrayBuffer({ cacheId: wadId, requestURL: data });
+                arrayBuffer = await getCacheItemAsArrayBuffer({
+                    cacheId: wadId,
+                    requestURL: data
+                });
                 if (!arrayBuffer) {
-                    console.error(`Could not find cache item '${selectedMidi.data}' in ${wadId}.`);
+                    console.error(
+                        `Could not find cache item '${
+                            selectedMidi.data
+                        }' in ${wadId}.`
+                    );
                 }
             }
 
-            success = this.midiPlayer.play({ arrayBuffer, url: objectURL, name: lumpName });
+            success = this.midiPlayer.play({
+                arrayBuffer,
+                url: objectURL,
+                name: lumpName
+            });
         }
 
         if (!success) {
@@ -458,12 +478,14 @@ export default class MediaPlayer extends Component {
         this.setState(prevState => ({
             selectedMidi: {
                 ...prevState.selectedMidi,
-                startedAt: moment().utc().unix(),
+                startedAt: moment()
+                    .utc()
+                    .unix(),
                 time,
-                paused: false,
-            },
+                paused: false
+            }
         }));
-    }
+    };
 
     pauseMidi = () => {
         const { globalMessages } = this.state;
@@ -471,13 +493,12 @@ export default class MediaPlayer extends Component {
             this.dismissGlobalMessage(MIDI_STATUS);
         }
 
-        this.setState((prevState) => {
+        this.setState(prevState => {
             const success = this.midiPlayer.pause();
 
             if (!success) {
                 return {};
             }
-
 
             if (!this.dummyAudio.paused && this.dummyAudio.currentTime) {
                 this.dummyAudio.pause();
@@ -485,14 +506,14 @@ export default class MediaPlayer extends Component {
 
             const selectedMidi = {
                 ...prevState.selectedMidi,
-                paused: true,
+                paused: true
             };
 
             return {
-                selectedMidi,
+                selectedMidi
             };
         });
-    }
+    };
 
     stopMidi = () => {
         if (!this.midiPlayer) {
@@ -509,7 +530,7 @@ export default class MediaPlayer extends Component {
             this.dismissGlobalMessage(MIDI_STATUS);
         }
 
-        this.setState((prevState) => {
+        this.setState(prevState => {
             const success = this.midiPlayer.stop();
 
             if (!success) {
@@ -523,14 +544,14 @@ export default class MediaPlayer extends Component {
             const selectedMidi = {
                 ...prevState.selectedMidi,
                 startedAt: 0,
-                time: 0,
+                time: 0
             };
 
             return {
-                selectedMidi,
+                selectedMidi
             };
         });
-    }
+    };
 
     clearMidiPlayer = () => {
         if (this.midiPlayer) {
@@ -542,13 +563,13 @@ export default class MediaPlayer extends Component {
             const { selectedMidi } = this.state;
             if (selectedMidi && selectedMidi.data) {
                 this.setState(() => ({
-                    selectedMidi: {},
+                    selectedMidi: {}
                 }));
             }
         }
-    }
+    };
 
-    updateMidiSelection = (wadId) => {
+    updateMidiSelection = wadId => {
         const { selectedMidi, settings } = this.state;
 
         if (!selectedMidi.lumpName) {
@@ -562,28 +583,25 @@ export default class MediaPlayer extends Component {
                 this.clearMidiPlayer();
             }
         }
-    }
+    };
 
     initPCMPlayer = () => {
         this.pcmPlayer = new PCMPlayer({
-            eventLogger: this.handlePCMPlayerEvent,
+            eventLogger: this.handlePCMPlayerEvent
         });
-    }
+    };
 
-    handlePCMPlayerEvent = ({
-        event,
-        message,
-        time,
-        ...payload
-    }) => {
+    handlePCMPlayerEvent = ({ event, message, time, ...payload }) => {
         switch (event) {
-            default: { break; }
+            default: {
+                break;
+            }
             case PCM_ERROR: {
                 this.dismissGlobalMessage(PCM_STATUS);
                 this.addGlobalMessage({
                     type: 'error',
                     id: event,
-                    text: `${PCM_PLAYER_MESSAGE_PREFIX} ${message}`,
+                    text: `${PCM_PLAYER_MESSAGE_PREFIX} ${message}`
                 });
 
                 break;
@@ -592,20 +610,16 @@ export default class MediaPlayer extends Component {
                 this.setState(() => ({ selectedPCM: {} }));
             }
         }
-    }
+    };
 
-    playPCM = async ({
-        data,
-        wadId,
-        lump,
-    }) => {
+    playPCM = async ({ data, wadId, lump }) => {
         if (!this.pcmPlayer) {
             this.initPCMPlayer();
         }
 
         this.pcmPlayer.play({
             data,
-            sampleRate: lump.sampleRate,
+            sampleRate: lump.sampleRate
         });
 
         this.setState(() => ({
@@ -615,18 +629,20 @@ export default class MediaPlayer extends Component {
                 lumpType: lump.type,
                 lumpName: lump.name,
                 wadId,
-                startedAt: moment().utc().unix(),
-            },
+                startedAt: moment()
+                    .utc()
+                    .unix()
+            }
         }));
-    }
+    };
 
     stopPCM = () => {
         this.pcmPlayer.stop();
         this.setState(prevState => ({
             selectedPCM: {
                 ...prevState.selectedPCM,
-                ended: true,
-            },
+                ended: true
+            }
         }));
-    }
+    };
 }
