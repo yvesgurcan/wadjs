@@ -207,7 +207,6 @@ export default class MidiPlayer {
     };
 
     getNextWave(event) {
-        const ev = event;
         const time = this.context.currentTime - this.startTime;
 
         this.emitEvent({
@@ -223,8 +222,6 @@ export default class MidiPlayer {
             [this.song, this.waveBuffer, MIDI_AUDIO_BUFFER_SIZE * 2, false]
         );
 
-        console.log(readWaveBytes);
-
         if (readWaveBytes === 0) {
             this.stop();
             this.emitEvent({
@@ -237,11 +234,11 @@ export default class MidiPlayer {
         for (let i = 0; i < MIDI_AUDIO_BUFFER_SIZE; i++) {
             if (i < readWaveBytes) {
                 // convert PCM data from C sint16 to JavaScript number (range -1.0 .. +1.0)
-                ev.outputBuffer.getChannelData(0)[i] =
+                event.outputBuffer.getChannelData(0)[i] =
                     Module.getValue(this.waveBuffer + 2 * i, 'i16') / MAX_I16;
             } else {
                 // fill end of buffer with zeroes, may happen at the end of a piece
-                ev.outputBuffer.getChannelData(0)[i] = 0;
+                event.outputBuffer.getChannelData(0)[i] = 0;
             }
         }
     }
@@ -255,7 +252,18 @@ export default class MidiPlayer {
             1
         );
         this.waveBuffer = Module._malloc(MIDI_AUDIO_BUFFER_SIZE * 2);
-        this.source.onaudioprocess = event => this.getNextWave(event); // add eventhandler for next buffer full of audio data
+
+        var gainNode = this.context.createGain();
+        gainNode.gain.value = 1;
+
+        // eventhandler for next buffer full of audio data
+        this.source.onaudioprocess = event => {
+            console.log({ event });
+            return this.getNextWave(event);
+        };
+
+        console.log(this.context.destination);
+
         this.source.connect(this.context.destination); // connect the source to the context's destination (the speakers)
         this.startTime = this.context.currentTime;
 
