@@ -21,32 +21,11 @@ class LibTimidity {
 // before the code. Then that object will be used in the code, and you
 // can continue to use Module afterwards as well.
 
-var Module;
-if (!Module) Module = eval('(function() { try { return Module || {} } catch(e) { return {} } })()');
-
-// Sometimes an existing Module object exists with properties
-// meant to overwrite the default module functionality. Here
-// we collect those properties and reapply _after_ we configure
-// the current environment's defaults to avoid having to be so
-// defensive during initialization.
-
-var moduleOverrides = {};
-for (var key in Module) {
-  if (Module.hasOwnProperty(key)) {
-    moduleOverrides[key] = Module[key];
-  }
-}
+var Module = {};
 
 // The environment setup code below is customized to use Module.
 // *** Environment setup code ***
 
-var ENVIRONMENT_IS_WEB = typeof window === 'object';
-var ENVIRONMENT_IS_WORKER = typeof importScripts === 'function';
-var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
-
-console.log({ ENVIRONMENT_IS_WEB, ENVIRONMENT_IS_WORKER, ENVIRONMENT_IS_SHELL })
-
-if (ENVIRONMENT_IS_WEB) {
   Module['read'] = function(url) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, false);
@@ -72,16 +51,7 @@ if (ENVIRONMENT_IS_WEB) {
       // self.postMessage(x); // enable this if you want stdout to be sent as messages
     }));
   }
-  if (ENVIRONMENT_IS_WEB) {
     this['Module'] = Module;
-  } else {
-    Module['load'] = importScripts;
-  }
-}
-else {
-  // Unreachable because SHELL is dependant on the others
-  throw 'Unknown runtime environment. Where are we?';
-}
 function globalEval(x) {
   eval.call(null, x);
 }
@@ -106,12 +76,6 @@ Module.printErr = Module['printErr'];
 // Callbacks
 Module['preRun'] = [];
 Module['postRun'] = [];
-// Merge back in the overrides
-for (var key in moduleOverrides) {
-  if (moduleOverrides.hasOwnProperty(key)) {
-    Module[key] = moduleOverrides[key];
-  }
-}
 // === Auto-generated preamble library stuff ===
 //========================================
 // Runtime code shared with compiler
@@ -2932,7 +2896,7 @@ function copyTempDouble(ptr) {
         return success;
       },createLazyFile:function (parent, name, url, canRead, canWrite) {
         if (typeof XMLHttpRequest !== 'undefined') {
-          if (!ENVIRONMENT_IS_WORKER) throw 'Cannot do synchronous binary XHRs outside webworkers in modern browsers. Use --embed-file or --preload-file in emcc';
+          throw 'Cannot do synchronous binary XHRs outside webworkers in modern browsers. Use --embed-file or --preload-file in emcc';
           // Lazy chunked Uint8Array (implements get and length from Uint8Array). Actual getting is abstracted away for eventual reuse.
           var LazyUint8Array = function() {
             this.lengthKnown = false;
@@ -4577,7 +4541,7 @@ function copyTempDouble(ptr) {
           }
         }},isFullScreen:false,pointerLock:false,moduleContextCreatedCallbacks:[],workers:[],init:function () {
         if (!Module["preloadPlugins"]) Module["preloadPlugins"] = []; // needs to exist even in workers
-        if (Browser.initted || ENVIRONMENT_IS_WORKER) return;
+        if (Browser.initted) return;
         Browser.initted = true;
         try {
           new Blob();
@@ -5101,9 +5065,6 @@ if (memoryInitializer) {
   function applyData(data) {
     HEAPU8.set(data, STATIC_BASE);
   }
-  if (ENVIRONMENT_IS_SHELL) {
-    applyData(Module['readBinary'](memoryInitializer));
-  } else {
     addRunDependency('memory initializer');
     Browser.asyncLoad(memoryInitializer, function(data) {
       applyData(data);
@@ -5111,7 +5072,6 @@ if (memoryInitializer) {
     }, function(data) {
       throw 'could not load memory initializer ' + memoryInitializer;
     });
-  }
 }
 
 function ExitStatus(status) {
@@ -5137,7 +5097,7 @@ Module['callMain'] = Module.callMain = function callMain(args) {
   assert(runDependencies == 0, 'cannot call main when async dependencies remain! (listen on __ATMAIN__)');
   assert(__ATPRERUN__.length == 0, 'cannot call main when preRun functions remain to be called');
   args = args || [];
-  if (ENVIRONMENT_IS_WEB && preloadStartTime !== null) {
+  if (preloadStartTime !== null) {
     Module.printErr('preload time: ' + (Date.now() - preloadStartTime) + ' ms');
   }
   ensureInitRuntime();
