@@ -4,24 +4,22 @@ import {
     ANSI_BACKGROUND_COLOR_CODES,
     ANSI_FOREGROUND_COLOR_CODES,
     ANSI_CODE_PAGE_437_TABLES,
-    SNDINFO,
+    SNDINFO
 } from '../lib/constants';
 
 import {
     getCacheItemAsJson,
     getCacheItemAsText,
-    setCacheItemAsBlob,
+    setCacheItemAsBlob
 } from '../lib/cacheManager';
 
-const interpolateBackgroundAnsiCode = int => (
-    int === Number.isNaN ? null : ANSI_BACKGROUND_COLOR_CODES[int]
-);
+const interpolateBackgroundAnsiCode = int =>
+    int === Number.isNaN ? null : ANSI_BACKGROUND_COLOR_CODES[int];
 
-const interpolateForegroundAnsiCode = int => (
-    int === Number.isNaN ? null : ANSI_FOREGROUND_COLOR_CODES[int]
-);
+const interpolateForegroundAnsiCode = int =>
+    int === Number.isNaN ? null : ANSI_FOREGROUND_COLOR_CODES[int];
 
-const parseAnsiScreen = (input) => {
+const parseAnsiScreen = input => {
     const blocks = [];
     let line = [];
 
@@ -42,7 +40,7 @@ const parseAnsiScreen = (input) => {
         const colorByte = input.getUint8(i + 1);
 
         // missings bits are replaced by zeroes
-        const colorBits = (`000000000${colorByte.toString(2)}`).substr(-8);
+        const colorBits = `000000000${colorByte.toString(2)}`.substr(-8);
 
         const foregroundBits = colorBits.slice(4, 8);
         const foregroundInt = parseInt(foregroundBits, 2);
@@ -55,29 +53,23 @@ const parseAnsiScreen = (input) => {
         line.push({
             character,
             foreground,
-            background,
+            background
         });
     }
 
     return blocks;
 };
 
-const firstDecodeTextMethod = input => decodeURI(new TextDecoder('utf-8').decode(input).replace(/\u0000/g, ' '));
+const firstDecodeTextMethod = input =>
+    decodeURI(new TextDecoder('utf-8').decode(input).replace(/\u0000/g, ' '));
 
 const processNewLines = text => text.split('\n');
 
-onmessage = async (message) => {
+onmessage = async message => {
     try {
-        const {
-            wadId,
-            lump,
-        } = message.data;
+        const { wadId, lump } = message.data;
 
-        const {
-            type: lumpType,
-            name: lumpId,
-            data: input,
-        } = lump;
+        const { type: lumpType, name: lumpId, data: input } = lump;
 
         // console.log(`Converting '${lumpType}/${lumpId}' to text (WAD: '${wadId}') ...`);
 
@@ -89,7 +81,7 @@ onmessage = async (message) => {
                 wadId,
                 lumpType,
                 lumpId,
-                ignored: true,
+                ignored: true
             });
 
             return;
@@ -101,7 +93,10 @@ onmessage = async (message) => {
             // ANSI
             convertedFormat = 'ANSI';
 
-            const cachedItem = await getCacheItemAsJson({ cacheId: wadId, requestURL });
+            const cachedItem = await getCacheItemAsJson({
+                cacheId: wadId,
+                requestURL
+            });
 
             if (cachedItem) {
                 postMessage({
@@ -109,7 +104,7 @@ onmessage = async (message) => {
                     lumpType,
                     lumpId,
                     output: cachedItem,
-                    convertedFormat,
+                    convertedFormat
                 });
 
                 return;
@@ -117,9 +112,16 @@ onmessage = async (message) => {
 
             output = parseAnsiScreen(input);
 
-            setCacheItemAsBlob({ cacheId: wadId, requestURL, responseData: JSON.stringify(output) });
+            setCacheItemAsBlob({
+                cacheId: wadId,
+                requestURL,
+                responseData: JSON.stringify(output)
+            });
         } else {
-            const cachedItem = await getCacheItemAsText({ cacheId: wadId, requestURL });
+            const cachedItem = await getCacheItemAsText({
+                cacheId: wadId,
+                requestURL
+            });
 
             if (cachedItem) {
                 postMessage({
@@ -127,7 +129,7 @@ onmessage = async (message) => {
                     lumpType,
                     lumpId,
                     output: cachedItem,
-                    convertedFormat,
+                    convertedFormat
                 });
 
                 return;
@@ -144,7 +146,7 @@ onmessage = async (message) => {
                 const id = INVALID_TEXT;
                 const error = {
                     id,
-                    message: errorMessage,
+                    message: errorMessage
                 };
 
                 // console.error(error, { err });
@@ -153,7 +155,7 @@ onmessage = async (message) => {
                     wadId,
                     lumpType,
                     lumpId,
-                    error,
+                    error
                 });
 
                 return;
@@ -161,7 +163,11 @@ onmessage = async (message) => {
 
             output = splitText;
 
-            setCacheItemAsBlob({ cacheId: wadId, requestURL, responseData: output });
+            setCacheItemAsBlob({
+                cacheId: wadId,
+                requestURL,
+                responseData: output
+            });
         }
 
         // console.log(`Converted '${lumpType}/${lumpId}' to text (WAD: '${wadId}').`);
@@ -171,7 +177,7 @@ onmessage = async (message) => {
             lumpType,
             lumpId,
             output,
-            convertedFormat,
+            convertedFormat
         });
     } catch (error) {
         console.error('Something bad happened in textConverter.', { error });

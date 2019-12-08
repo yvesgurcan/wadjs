@@ -6,14 +6,14 @@ import {
     DEFAULT_PCM_SAMPLE_RATE,
     DEFAULT_PCM_CONFIGURATION,
     PCM_MAX_VALUES,
-    PCM_TYPED_ARRAYS,
+    PCM_TYPED_ARRAYS
 } from './constants';
 
 export default class PCMPlayer {
     constructor(initConfiguration) {
         const configuration = {
             ...DEFAULT_PCM_CONFIGURATION,
-            ...initConfiguration,
+            ...initConfiguration
         };
 
         const {
@@ -21,7 +21,7 @@ export default class PCMPlayer {
             logging,
             encoding,
             channels,
-            volume,
+            volume
         } = configuration;
 
         this.eventLogger = eventLogger;
@@ -39,15 +39,15 @@ export default class PCMPlayer {
 
     getMaxValue() {
         return (
-            PCM_MAX_VALUES[this.encoding]
-            || PCM_MAX_VALUES[DEFAULT_PCM_CONFIGURATION.encoding]
+            PCM_MAX_VALUES[this.encoding] ||
+            PCM_MAX_VALUES[DEFAULT_PCM_CONFIGURATION.encoding]
         );
     }
 
     getTypedArray() {
         return (
-            PCM_TYPED_ARRAYS[this.encoding]
-            || PCM_TYPED_ARRAYS[DEFAULT_PCM_CONFIGURATION.encoding]
+            PCM_TYPED_ARRAYS[this.encoding] ||
+            PCM_TYPED_ARRAYS[DEFAULT_PCM_CONFIGURATION.encoding]
         );
     }
 
@@ -67,12 +67,11 @@ export default class PCMPlayer {
     }
 
     isTypedArray(data) {
-        const isTypedArray = (
-            data
-            && data.byteLength
-            && data.buffer
-            && data.buffer.constructor === ArrayBuffer
-        );
+        const isTypedArray =
+            data &&
+            data.byteLength &&
+            data.buffer &&
+            data.buffer.constructor === ArrayBuffer;
 
         return isTypedArray;
     }
@@ -101,19 +100,20 @@ export default class PCMPlayer {
             const message = 'Data is not an array buffer.';
             this.emitEvent({
                 event: PCM_ERROR,
-                message,
+                message
             });
 
             return;
         }
 
         const { typedArray } = this;
-        const data = isArrayBuffer ? new typedArray(input) : new typedArray(input.buffer, input.byteOffset, input.byteLength);
+        const data = isArrayBuffer
+            ? new typedArray(input)
+            : new typedArray(input.buffer, input.byteOffset, input.byteLength);
 
         const normalizedData = this.getFormatedValue(data);
 
         this.samples = normalizedData;
-
 
         this.bufferSource = this.audioCtx.createBufferSource();
         const length = this.samples.length / this.channels;
@@ -121,7 +121,7 @@ export default class PCMPlayer {
         this.audioBuffer = this.audioCtx.createBuffer(
             this.channels,
             length,
-            sampleRate || DEFAULT_PCM_SAMPLE_RATE,
+            sampleRate || DEFAULT_PCM_SAMPLE_RATE
         );
 
         let audioData;
@@ -144,13 +144,13 @@ export default class PCMPlayer {
         this.gainNode.connect(this.audioCtx.destination);
 
         // fade in
-        this.gainNode.gain.linearRampToValueAtTime(this.volume, 0.030);
+        this.gainNode.gain.linearRampToValueAtTime(this.volume, 0.03);
 
         this.bufferSource.start(0);
 
         this.emitEvent({
             event: PCM_PLAY,
-            time: 0,
+            time: 0
         });
 
         this.watchPlayback();
@@ -167,12 +167,15 @@ export default class PCMPlayer {
                 const time = this.audioCtx.currentTime;
                 this.emitEvent({
                     event: PCM_PLAY,
-                    time,
+                    time
                 });
 
                 if (time + 0.24 >= this.audioBuffer.duration) {
                     // fade out
-                    this.gainNode.gain.linearRampToValueAtTime(0, this.audioBuffer.duration);
+                    this.gainNode.gain.linearRampToValueAtTime(
+                        0,
+                        this.audioBuffer.duration
+                    );
                 }
 
                 if (time >= this.audioBuffer.duration) {

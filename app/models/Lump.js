@@ -1,8 +1,4 @@
-import {
-    PNAMES,
-    IMAGE_LUMPS,
-    SNDINFO,
-} from '../lib/constants';
+import { PNAMES, IMAGE_LUMPS, SNDINFO } from '../lib/constants';
 
 export default class Lump {
     setIndexData({
@@ -20,7 +16,7 @@ export default class Lump {
         sampleRate,
         lineIndex,
         count,
-        data,
+        data
     }) {
         this.name = name;
         this.description = description;
@@ -41,7 +37,9 @@ export default class Lump {
 
     get sizeInBytes() {
         if (this.type === 'maps') {
-            const cumulativeSize = Object.keys(this.data).map(dataLumpId => this.data[dataLumpId].size).reduce((sum, value) => sum + value, 0);
+            const cumulativeSize = Object.keys(this.data)
+                .map(dataLumpId => this.data[dataLumpId].size)
+                .reduce((sum, value) => sum + value, 0);
             return `${cumulativeSize} bytes`;
         }
 
