@@ -258,11 +258,8 @@ export default class MidiPlayer {
 
         // eventhandler for next buffer full of audio data
         this.source.onaudioprocess = event => {
-            console.log({ event });
             return this.getNextWave(event);
         };
-
-        console.log(this.context.destination);
 
         this.source.connect(this.context.destination); // connect the source to the context's destination (the speakers)
         this.startTime = this.context.currentTime;
@@ -293,7 +290,7 @@ export default class MidiPlayer {
             }
 
             this.missingPatchCount = this.missingPatchCount - 1;
-            FS.createDataFile(
+            Module.FS.createDataFile(
                 'pat/',
                 filename,
                 new Int8Array(request.response),
