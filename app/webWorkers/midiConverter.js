@@ -16,12 +16,12 @@ import {
     MIDI_PRESS_KEY,
     MIDI_CHANGE_CONTROLLER,
     MIDI_CHANGE_PATCH,
-    MIDI_PITCH_WHEEL,
+    MIDI_PITCH_WHEEL
 } from '../lib/constants';
 
 import {
     getCacheItemAsArrayBuffer,
-    setCacheItemAsBlob,
+    setCacheItemAsBlob
 } from '../lib/cacheManager';
 
 function readMusHeader(dataView) {
@@ -39,7 +39,7 @@ function readMusHeader(dataView) {
         scoreStart: dataView.getUint16(6, true),
         primaryChannels: dataView.getUint16(8, true),
         secondaryChannels: dataView.getUint16(10, true),
-        instrumentCount: dataView.getUint16(12, true),
+        instrumentCount: dataView.getUint16(12, true)
     };
 
     return musHeader;
@@ -51,43 +51,42 @@ function isValidMusHeader(id) {
 
 // TODO: Send the error string in postMessage
 
-onmessage = async (message) => {
+onmessage = async message => {
     try {
-        const {
-            wadId,
-            lump,
-        } = message.data;
+        const { wadId, lump } = message.data;
 
-        const {
-            name,
-            type,
-            data,
-            originalFormat,
-        } = lump;
+        const { name, type, data, originalFormat } = lump;
 
         const requestURL = `/midis/${wadId}/${name}`;
 
         if (originalFormat === 'MIDI') {
-            setCacheItemAsBlob({ cacheId: wadId, requestURL, responseData: data });
+            setCacheItemAsBlob({
+                cacheId: wadId,
+                requestURL,
+                responseData: data
+            });
 
             postMessage({
                 wadId,
                 lumpId: name,
                 lumpType: type,
-                output: requestURL,
+                output: requestURL
             });
 
             return;
         }
 
-        const cachedItem = await getCacheItemAsArrayBuffer({ cacheId: wadId, requestURL });
+        const cachedItem = await getCacheItemAsArrayBuffer({
+            cacheId: wadId,
+            requestURL
+        });
 
         if (cachedItem) {
             postMessage({
                 wadId,
                 lumpId: name,
                 lumpType: type,
-                output: requestURL,
+                output: requestURL
             });
 
             return;
@@ -100,7 +99,22 @@ onmessage = async (message) => {
 
         // Cached channel velocities
         const channelvelocities = [
-            127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127,
+            127
         ];
 
         // Timestamps between sequences of MUS events
@@ -134,22 +148,24 @@ onmessage = async (message) => {
 
         // Write timestamp to a MIDI file.
         function writeTime(time) {
-            let buffer = time & 0x7F;
+            let buffer = time & 0x7f;
             let writeval;
 
             while ((time >>= 7) != 0) {
                 buffer <<= 8;
-                buffer |= ((time & 0x7F) | 0x80);
+                buffer |= (time & 0x7f) | 0x80;
             }
 
-            for (; ;) {
-                writeval = (buffer & 0xFF);
+            for (;;) {
+                writeval = buffer & 0xff;
 
                 writeData([writeval]);
 
                 tracksize += 1;
 
-                if ((buffer & 0x80) != 0) { buffer >>= 8; } else {
+                if ((buffer & 0x80) != 0) {
+                    buffer >>= 8;
+                } else {
                     queuedtime = 0;
                     return;
                 }
@@ -158,7 +174,7 @@ onmessage = async (message) => {
 
         // Write the end of track marker
         function writeEndTrack() {
-            const endtrack = [0xFF, 0x2F, 0x00];
+            const endtrack = [0xff, 0x2f, 0x00];
 
             writeTime(queuedtime);
 
@@ -177,11 +193,11 @@ onmessage = async (message) => {
             writeData([working]);
 
             // Write key
-            working = key & 0x7F;
+            working = key & 0x7f;
             writeData([working]);
 
             // Wite velocity
-            working = velocity & 0x7F;
+            working = velocity & 0x7f;
             writeData([working]);
 
             tracksize += 3;
@@ -197,7 +213,7 @@ onmessage = async (message) => {
             writeData([working]);
 
             // Write key
-            working = key & 0x7F;
+            working = key & 0x7f;
             writeData([working]);
 
             // Dummy
@@ -215,10 +231,10 @@ onmessage = async (message) => {
             let working = MIDI_PITCH_WHEEL | channel;
             writeData([working]);
 
-            working = wheel & 0x7F;
+            working = wheel & 0x7f;
             writeData([working]);
 
-            working = (wheel >> 7) & 0x7F;
+            working = (wheel >> 7) & 0x7f;
             writeData([working]);
 
             tracksize += 3;
@@ -232,7 +248,7 @@ onmessage = async (message) => {
             let working = MIDI_CHANGE_PATCH | channel;
             writeData([working]);
 
-            working = patch & 0x7F;
+            working = patch & 0x7f;
             writeData([working]);
 
             tracksize += 2;
@@ -246,11 +262,11 @@ onmessage = async (message) => {
             let working = MIDI_CHANGE_CONTROLLER | channel;
             writeData([working]);
 
-            working = control & 0x7F;
+            working = control & 0x7f;
             writeData([working]);
 
             // Quirk in vanilla DOOM? MUS controller values should be 7-bit, not 8-bit.
-            working = value & 0x80 ? 0x7F : value;
+            working = value & 0x80 ? 0x7f : value;
             writeData([working]);
 
             tracksize += 3;
@@ -332,7 +348,6 @@ onmessage = async (message) => {
             let channel; // Channel number
             let musEvent;
 
-
             // Bunch of vars read from MUS lump
             let key;
             let controllernumber;
@@ -354,7 +369,11 @@ onmessage = async (message) => {
             const musHeader = readMusHeader(musDataView);
 
             if (!isValidMusHeader(musHeader.id)) {
-                console.error(`Invalid MUS header: '${musHeader.id}'. Expected: '${MUS_HEADER_SIGNATURE}'`);
+                console.error(
+                    `Invalid MUS header: '${
+                        musHeader.id
+                    }'. Expected: '${MUS_HEADER_SIGNATURE}'`
+                );
                 return false;
             }
 
@@ -373,8 +392,7 @@ onmessage = async (message) => {
                     // Fetch channel number and event code:
                     eventdescriptor = getMusByte8();
 
-
-                    channel = getMIDIChannel(eventdescriptor & 0x0F);
+                    channel = getMIDIChannel(eventdescriptor & 0x0f);
                     musEvent = eventdescriptor & 0x70;
                     switch (musEvent) {
                         case MUS_RELEASE_KEY:
@@ -391,14 +409,18 @@ onmessage = async (message) => {
                             if (key & 0x80) {
                                 channelvelocities[channel] = getMusByte8();
 
-                                channelvelocities[channel] &= 0x7F;
+                                channelvelocities[channel] &= 0x7f;
 
                                 // console.log('MUS_PRESS_KEY: '+key+ ' ' + channelvelocities[channel]);
                             } else {
                                 // console.log('MUS_PRESS_KEY: '+key);
                             }
 
-                            writePressKey(channel, key, channelvelocities[channel]);
+                            writePressKey(
+                                channel,
+                                key,
+                                channelvelocities[channel]
+                            );
 
                             break;
 
@@ -414,12 +436,20 @@ onmessage = async (message) => {
                             // console.log('MUS_SYSTEM_EVENT');
                             controllernumber = getMusByte8();
 
-                            if (controllernumber < 10 || controllernumber > 14) {
-                                console.error(`Controller number inaccurate 10-14: ${controllernumber}`);
+                            if (
+                                controllernumber < 10 ||
+                                controllernumber > 14
+                            ) {
+                                console.error(
+                                    `Controller number inaccurate 10-14: ${controllernumber}`
+                                );
                                 return false;
                             }
 
-                            writeChangeControllerValueless(channel, MIDI_CONTROLLER_MAP[controllernumber]);
+                            writeChangeControllerValueless(
+                                channel,
+                                MIDI_CONTROLLER_MAP[controllernumber]
+                            );
 
                             break;
 
@@ -430,12 +460,21 @@ onmessage = async (message) => {
                             if (controllernumber == 0) {
                                 writeChangePatch(channel, controllervalue);
                             } else {
-                                if (controllernumber < 1 || controllernumber > 9) {
-                                    console.error(`Controller number inaccurate: ${controllernumber}`);
+                                if (
+                                    controllernumber < 1 ||
+                                    controllernumber > 9
+                                ) {
+                                    console.error(
+                                        `Controller number inaccurate: ${controllernumber}`
+                                    );
                                     return false;
                                 }
 
-                                writeChangeControllerValued(channel, MIDI_CONTROLLER_MAP[controllernumber], controllervalue);
+                                writeChangeControllerValued(
+                                    channel,
+                                    MIDI_CONTROLLER_MAP[controllernumber],
+                                    controllervalue
+                                );
                             }
 
                             break;
@@ -459,11 +498,13 @@ onmessage = async (message) => {
                     // console.log('read time code');
                     timedelay = 0;
                     // delayCounter = 0;
-                    for (; ;) {
+                    for (;;) {
                         working = getMusByte8();
                         // delayCounter += 1;
-                        timedelay = timedelay * 128 + (working & 0x7F);
-                        if ((working & 0x80) == 0) { break; }
+                        timedelay = timedelay * 128 + (working & 0x7f);
+                        if ((working & 0x80) == 0) {
+                            break;
+                        }
                     }
                     // console.log('delay count: '+delayCounter + ' time delay: ' + timedelay)
                     queuedtime += timedelay;
@@ -476,9 +517,18 @@ onmessage = async (message) => {
             confirmWrite();
 
             // Write the track size into the stream
-            outputDataView.setUint8(MIDI_TRACKLENGTH_OFS + 0, (tracksize >> 24) & 0xff);
-            outputDataView.setUint8(MIDI_TRACKLENGTH_OFS + 1, (tracksize >> 16) & 0xff);
-            outputDataView.setUint8(MIDI_TRACKLENGTH_OFS + 2, (tracksize >> 8) & 0xff);
+            outputDataView.setUint8(
+                MIDI_TRACKLENGTH_OFS + 0,
+                (tracksize >> 24) & 0xff
+            );
+            outputDataView.setUint8(
+                MIDI_TRACKLENGTH_OFS + 1,
+                (tracksize >> 16) & 0xff
+            );
+            outputDataView.setUint8(
+                MIDI_TRACKLENGTH_OFS + 2,
+                (tracksize >> 8) & 0xff
+            );
             outputDataView.setUint8(MIDI_TRACKLENGTH_OFS + 3, tracksize & 0xff);
 
             return outputDataView.buffer;
@@ -486,7 +536,10 @@ onmessage = async (message) => {
 
         const midi = convertMusToMidi(data);
         if (!midi) {
-            console.error(`Failed to convert '${type}/${name}' from MUS to MIDI (WAD: '${wadId}').`, { musDataPosition });
+            console.error(
+                `Failed to convert '${type}/${name}' from MUS to MIDI (WAD: '${wadId}').`,
+                { musDataPosition }
+            );
         }
 
         setCacheItemAsBlob({ cacheId: wadId, requestURL, responseData: midi });
@@ -495,7 +548,7 @@ onmessage = async (message) => {
             wadId,
             lumpId: name,
             lumpType: type,
-            output: requestURL,
+            output: requestURL
         });
     } catch (error) {
         console.error('Something bad happened in midiConverter.', { error });

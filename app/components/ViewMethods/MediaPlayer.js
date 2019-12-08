@@ -2,7 +2,7 @@ import { Component } from 'react';
 import moment from 'moment';
 
 import mediaSessionSupport from '../../lib/mediaSessionSupport';
-import MidiPlayer from '../../lib/MidiPlayer';
+import MidiPlayer from 'web-midi-player';
 import PCMPlayer from '../../lib/PCMPlayer';
 import { getCacheItemAsArrayBuffer } from '../../lib/cacheManager';
 
@@ -72,6 +72,7 @@ export default class MediaPlayer extends Component {
     };
 
     initMidiPlayer = () => {
+        console.log(MidiPlayer);
         this.midiPlayer = new MidiPlayer({
             eventLogger: this.handleMidiPlayerEvent
         });

@@ -11,8 +11,10 @@ console.log({ TARGET });
 
 const plugins = [
     new HtmlWebPackPlugin({
-        template: isProduction ? 'app/templates/index.html' : 'app/templates/index-without-ga.html',
-        filename: isProduction ? '../index.html' : 'index.html',
+        template: isProduction
+            ? 'app/templates/index.html'
+            : 'app/templates/index-without-ga.html',
+        filename: isProduction ? '../index.html' : 'index.html'
     }),
     new webpack.DefinePlugin({
         PROJECT: JSON.stringify(info.name),
@@ -20,33 +22,35 @@ const plugins = [
         VERSION: JSON.stringify(info.version),
         ISSUES: JSON.stringify(info.bugs.url),
         REPO: JSON.stringify(info.homepage),
-        TARGET: JSON.stringify(TARGET),
+        TARGET: JSON.stringify(TARGET)
     }),
     // https://developers.google.com/web/tools/workbox/modules/workbox-webpack-plugin#full_generatesw_config
     new GenerateSW({
-        swDest: isProduction ? '../service-worker-core.js' : './service-worker-core.js',
+        swDest: isProduction
+            ? '../service-worker-core.js'
+            : './service-worker-core.js',
         globDirectory: 'public/',
         globPatterns: ['**/*'],
         manifestTransforms: [
-            (originalManifest) => {
-                const manifest = originalManifest.map(
-                    entry => ({
-                        ...entry,
-                        url: `public/${entry.url}`,
-                    }),
-                );
+            originalManifest => {
+                const manifest = originalManifest.map(entry => ({
+                    ...entry,
+                    url: `public/${entry.url}`
+                }));
                 return { manifest };
-            },
+            }
         ],
         maximumFileSizeToCacheInBytes: 30 * 1024 * 1024,
-        clientsClaim: true,
-    }),
+        clientsClaim: true
+    })
 ];
 
 if (!isProduction) {
-    plugins.push(new BundleAnalyzerPlugin({
-        openAnalyzer: false,
-    }));
+    plugins.push(
+        new BundleAnalyzerPlugin({
+            openAnalyzer: false
+        })
+    );
 } else {
     plugins.unshift(new CleanWebpackPlugin());
 }
@@ -55,10 +59,10 @@ module.exports = () => ({
     output: {
         filename: '[name].[hash].js',
         hashDigestLength: 8,
-        publicPath: isProduction ? 'dist/' : '',
+        publicPath: isProduction ? 'dist/' : ''
     },
     optimization: {
-        minimize: true,
+        minimize: true
     },
     module: {
         rules: [
@@ -66,14 +70,14 @@ module.exports = () => ({
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: 'babel-loader',
-                },
+                    loader: 'babel-loader'
+                }
             },
             {
                 test: /\.scss$/,
                 use: [
                     {
-                        loader: 'style-loader',
+                        loader: 'style-loader'
                     },
                     {
                         loader: 'css-loader',
@@ -81,8 +85,8 @@ module.exports = () => ({
                             modules: true,
                             importLoaders: 1,
                             localIdentName: '[local]_[hash:base64]',
-                            sourceMap: true,
-                        },
+                            sourceMap: true
+                        }
                     },
                     {
                         loader: 'sass-loader',
@@ -90,38 +94,42 @@ module.exports = () => ({
                             modules: true,
                             importLoaders: 1,
                             localIdentName: '[local]_[hash:base64]',
-                            sourceMap: true,
-                        },
-                    },
-                ],
+                            sourceMap: true
+                        }
+                    }
+                ]
             },
             {
                 test: /\.png$/,
-                use: 'url-loader?mimetype=image/png',
+                use: 'url-loader?mimetype=image/png'
             },
             {
                 test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-                use: [{
-                    loader: 'url-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: 'assets/',
-                    },
-                }],
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            name: '[name].[ext]',
+                            outputPath: 'assets/'
+                        }
+                    }
+                ]
             },
             {
                 test: /\.js$/,
                 include: /webWorkers/,
-                use: [{
-                    loader: 'worker-loader',
-                    options: {
-                        name: '[name].[hash].js',
-                        publicPath: isProduction ? 'dist/' : '',
-                    },
-                }],
-            },
-        ],
+                use: [
+                    {
+                        loader: 'worker-loader',
+                        options: {
+                            name: '[name].[hash].js',
+                            publicPath: isProduction ? 'dist/' : ''
+                        }
+                    }
+                ]
+            }
+        ]
     },
     plugins,
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'cheap-module-eval-source-map'
 });

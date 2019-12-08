@@ -21,28 +21,32 @@ export default () => (
                 />
                 <div className={style.mobileVersion}>
                     <a target="_blank" rel="noopener noreferrer" href={REPO}>
-                        v
-                        {VERSION}
+                        v{VERSION}
                     </a>
                 </div>
             </div>
             <div>
-                <label
-                    className={style.hamburgerIcon}
-                    htmlFor="hamburger"
-                >
+                <label className={style.hamburgerIcon} htmlFor="hamburger">
                     <span className={style.navIcon} />
                 </label>
             </div>
         </div>
         <div className={style.headerInner}>
             <div>
-                <a target="_blank" rel="noopener noreferrer" href={`${REPO}/blob/master/doc/HELP.md`}>
+                <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`${REPO}/blob/master/doc/HELP.md`}
+                >
                     help
                 </a>
             </div>
             <div>
-                <a target="_blank" rel="noopener noreferrer" href={`${REPO}/blob/master/doc/CHANGELOG.md`}>
+                <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`${REPO}/blob/master/doc/CHANGELOG.md`}
+                >
                     changelog
                 </a>
             </div>
@@ -53,8 +57,7 @@ export default () => (
             </div>
             <div className={style.desktopVersion}>
                 <a target="_blank" rel="noopener noreferrer" href={REPO}>
-                    v
-                    {VERSION}
+                    v{VERSION}
                 </a>
             </div>
         </div>
