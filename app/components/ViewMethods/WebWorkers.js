@@ -10,11 +10,9 @@ export default class WebWorkers extends MapParser {
         onmessage = () => {},
         onerror = this.workerError
     }) {
-        if (workerId === 'midiConverter') {
-            this[workerId] = new workerClass();
-            this[workerId].onmessage = onmessage;
-            this[workerId].onerror = onerror;
-        }
+        this[workerId] = new workerClass();
+        this[workerId].onmessage = onmessage;
+        this[workerId].onerror = onerror;
     }
 
     getLumps = ({
@@ -480,7 +478,6 @@ export default class WebWorkers extends MapParser {
         this.clearTargetObject({ targetObject: 'maps' });
     };
 
-    // not used yet; should be triggered when webworkers postMessage are failing
     restartConvertingWads = () => {
         const { wads } = this.state;
         const wadIds = Object.keys(wads || {});
