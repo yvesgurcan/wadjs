@@ -624,8 +624,7 @@ export default class App extends AllMethods {
         try {
             wrappedFunction();
         } catch (error) {
-            // DEBUG
-            // console.error('An error was caught.', { error });
+            console.error('An error was caught.', { error });
             if (displayErrorMessage) {
                 this.addGlobalMessage({
                     type: 'error',

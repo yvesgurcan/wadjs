@@ -482,8 +482,6 @@ export default class WebWorkers extends MapParser {
 
     // not used yet; should be triggered when webworkers postMessage are failing
     restartConvertingWads = () => {
-        // DEBUG
-        return;
         const { wads } = this.state;
         const wadIds = Object.keys(wads || {});
 

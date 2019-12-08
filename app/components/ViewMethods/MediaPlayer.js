@@ -260,8 +260,6 @@ export default class MediaPlayer extends Component {
     };
 
     handleMidiPlayerEvent = ({ event, message, time, ...payload }) => {
-        // DEBUG
-        console.log({ event });
         switch (event) {
             default: {
                 if (message) {
