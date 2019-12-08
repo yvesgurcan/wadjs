@@ -1,50 +1,44 @@
-import {
-    DMX_HEADER_SIZE,
-    DMX_TAIL_PADDING,
-} from '../lib/constants';
+import { DMX_HEADER_SIZE, DMX_TAIL_PADDING } from '../lib/constants';
 
 import {
     getCacheItemAsArrayBuffer,
-    setCacheItemAsBlob,
+    setCacheItemAsBlob
 } from '../lib/cacheManager';
 
 function getDMXBody({ data }) {
     const offsetWithoutHeader = data.byteOffset + DMX_HEADER_SIZE;
-    const byteLengthWithoutHeaderNorTail = data.byteLength - DMX_HEADER_SIZE - DMX_TAIL_PADDING;
+    const byteLengthWithoutHeaderNorTail =
+        data.byteLength - DMX_HEADER_SIZE - DMX_TAIL_PADDING;
 
     const dataWithoutHeader = new Uint8Array(
         data.buffer,
         offsetWithoutHeader,
-        byteLengthWithoutHeaderNorTail,
+        byteLengthWithoutHeaderNorTail
     );
 
     return dataWithoutHeader;
 }
 
-onmessage = async (message) => {
+onmessage = async message => {
     try {
-        const {
-            wadId,
-            lump,
-        } = message.data;
+        const { wadId, lump } = message.data;
 
-        const {
-            name,
-            type,
-            data,
-        } = lump;
+        const { name, type, data } = lump;
 
         // console.log(`Converting '${type}/${name}' from DMX to PCM (WAD: '${wadId}') ...`);
 
         const requestURL = `/pcms/${wadId}/${name}`;
-        const cachedItem = await getCacheItemAsArrayBuffer({ cacheId: wadId, requestURL });
+        const cachedItem = await getCacheItemAsArrayBuffer({
+            cacheId: wadId,
+            requestURL
+        });
 
         if (cachedItem) {
             postMessage({
                 wadId,
                 lumpId: name,
                 lumpType: type,
-                output: cachedItem,
+                output: cachedItem
             });
 
             return;
@@ -53,23 +47,32 @@ onmessage = async (message) => {
         try {
             const pcm = getDMXBody({ data });
 
-            console.log(`Converted '${type}/${name}' from DMX to PCM (WAD: '${wadId}').`);
-            setCacheItemAsBlob({ cacheId: wadId, requestURL, responseData: pcm });
+            console.log(
+                `Converted '${type}/${name}' from DMX to PCM (WAD: '${wadId}').`
+            );
+            setCacheItemAsBlob({
+                cacheId: wadId,
+                requestURL,
+                responseData: pcm
+            });
 
             postMessage({
                 wadId,
                 lumpId: name,
                 lumpType: type,
-                output: pcm,
+                output: pcm
             });
         } catch (error) {
-            console.error(`Could not convert '${name}' from DMX to PCM (WAD: '${wadId}').`, { error });
+            console.error(
+                `Could not convert '${name}' from DMX to PCM (WAD: '${wadId}').`,
+                { error }
+            );
 
             postMessage({
                 wadId,
                 lumpId: name,
                 lumpType: type,
-                error: error.message,
+                error: error.message
             });
         }
     } catch (error) {

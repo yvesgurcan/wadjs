@@ -1,14 +1,8 @@
-import {
-    TRANSPARENT_PIXEL,
-    IMAGE_DATA_BOUNDARY,
-} from '../lib/constants';
+import { TRANSPARENT_PIXEL, IMAGE_DATA_BOUNDARY } from '../lib/constants';
 
 import convertColorIndexesReferencesToBlob from '../lib/convertColorIndexesReferencesToBlob';
 
-import {
-    getCacheItemAsBlob,
-    setCacheItemAsBlob,
-} from '../lib/cacheManager';
+import { getCacheItemAsBlob, setCacheItemAsBlob } from '../lib/cacheManager';
 
 function buildColorIndexReferences(data, width, height) {
     try {
@@ -23,7 +17,7 @@ function buildColorIndexReferences(data, width, height) {
 
         const columnAddresses = [];
         for (let i = 0; i < width; i++) {
-            columnAddresses[i] = data.getUint32(8 + (i * 4), true);
+            columnAddresses[i] = data.getUint32(8 + i * 4, true);
         }
 
         let position = 0;
@@ -43,7 +37,9 @@ function buildColorIndexReferences(data, width, height) {
                 position += 2;
 
                 for (let j = 0; j < pixelCount; j++) {
-                    colorIndexes[((rowStart + j) * width) + i] = data.getUint8(position);
+                    colorIndexes[(rowStart + j) * width + i] = data.getUint8(
+                        position
+                    );
                     position += 1;
                 }
                 position += 1;
@@ -51,71 +47,79 @@ function buildColorIndexReferences(data, width, height) {
         }
         return colorIndexes;
     } catch (error) {
-        console.error('An error occurred while building color index references', { error });
+        console.error(
+            'An error occurred while building color index references',
+            { error }
+        );
         return { error };
     }
 }
 
-onmessage = async (message) => {
+onmessage = async message => {
     try {
-        const {
-            wadId,
-            lump,
-            palette,
-        } = message.data;
+        const { wadId, lump, palette } = message.data;
 
-        const {
-            name,
-            type,
-            data,
-            width,
-            height,
-        } = lump;
+        const { name, type, data, width, height } = lump;
 
         // console.log(`Converting '${type}/${name}' from complex image to PNG data URL (WAD: '${wadId}') ...`);
 
         const requestURL = `/complexImages/${wadId}/${name}`;
-        const cachedItem = await getCacheItemAsBlob({ cacheId: wadId, requestURL });
+        const cachedItem = await getCacheItemAsBlob({
+            cacheId: wadId,
+            requestURL
+        });
 
         if (cachedItem) {
             postMessage({
                 wadId,
                 lumpId: name,
                 lumpType: type,
-                output: cachedItem,
+                output: cachedItem
             });
 
             return;
         }
 
-        const colorIndexReferences = buildColorIndexReferences(data, width, height);
+        const colorIndexReferences = buildColorIndexReferences(
+            data,
+            width,
+            height
+        );
 
         const image = await convertColorIndexesReferencesToBlob(
             colorIndexReferences,
             width,
             height,
-            palette,
+            palette
         );
 
         if (image && !image.error) {
             // console.log(`Converted '${type}/${name}' from complex image to blob (WAD: '${wadId}').`);
-            setCacheItemAsBlob({ cacheId: wadId, requestURL, responseData: image });
+            setCacheItemAsBlob({
+                cacheId: wadId,
+                requestURL,
+                responseData: image
+            });
             postMessage({
                 wadId,
                 lumpId: name,
                 lumpType: type,
-                output: image,
+                output: image
             });
         } else {
-            console.error(`Could not convert '${name}' from complex image to blob (WAD: '${wadId}').`);
+            console.error(
+                `Could not convert '${name}' from complex image to blob (WAD: '${wadId}').`
+            );
             postMessage({
                 wadId,
                 lumpId: name,
                 lumpType: type,
-                error: image.error,
+                error: image.error
             });
         }
     } catch (error) {
-        console.error('Something bad happened in complexImageConverter.', { error });
+        console.error('Something bad happened in complexImageConverter.', {
+            error
+        });
     }
 };

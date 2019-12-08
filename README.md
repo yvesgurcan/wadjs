@@ -30,3 +30,7 @@ Build the app for production.
 ```
 npm run build
 ```
+
+## Other
+
+* Play [JSDoom](https://doom.yvesgurcan.com).

@@ -5,13 +5,10 @@ import {
     HEXEN_MAP_DATA_SCHEMAS,
     // COLOR_COUNT_PER_PALETTE,
     DEFAULT_MAP_PALETTE,
-    MAP_PADDING,
+    MAP_PADDING
 } from '../lib/constants';
 
-function getHeightDiff({
-    rightSidedefSector,
-    leftSidedefSector,
-}) {
+function getHeightDiff({ rightSidedefSector, leftSidedefSector }) {
     let heightDifference = null;
 
     if (rightSidedefSector.zFloor !== leftSidedefSector.zFloor) {
@@ -23,17 +20,12 @@ function getHeightDiff({
     return heightDifference;
 }
 
-async function createMapPreview({
-    mapData,
-    mapFormat,
-    mapSizeData,
-    palette,
-}) {
+async function createMapPreview({ mapData, mapFormat, mapSizeData, palette }) {
     const {
         SECTORS: sectors,
         LINEDEFS: linedefs,
         SIDEDEFS: sidedefs,
-        VERTEXES: vertices,
+        VERTEXES: vertices
     } = mapData || {};
     if (!mapData || !sectors || !linedefs || !sidedefs || !vertices) {
         console.error('Invalid mapData.');
@@ -63,16 +55,11 @@ async function createMapPreview({
         return null;
     }
 
-    const {
-        height,
-        width,
-        minX,
-        minY,
-    } = mapSizeData;
+    const { height, width, minX, minY } = mapSizeData;
 
     const { canvas, context } = createOffscreenCanvas({
-        height: height + (MAP_PADDING * 2),
-        width: width + (MAP_PADDING * 2),
+        height: height + MAP_PADDING * 2,
+        width: width + MAP_PADDING * 2
     });
 
     context.fillStyle = mapPalette.background;
@@ -87,7 +74,7 @@ async function createMapPreview({
             vertex1,
             vertex2,
             rightSidedef: rightSidedefIndex,
-            leftSidedef: leftSidedefIndex,
+            leftSidedef: leftSidedefIndex
         } = linedef;
 
         let { x: x1, y: y1 } = vertices[vertex1];
@@ -114,7 +101,7 @@ async function createMapPreview({
 
             const heightDifference = getHeightDiff({
                 rightSidedefSector,
-                leftSidedefSector,
+                leftSidedefSector
             });
 
             if (heightDifference) {
@@ -188,7 +175,7 @@ function getMapSize({ vertices }) {
         minY,
         maxY,
         width,
-        height,
+        height
     };
 }
 
@@ -202,21 +189,12 @@ function get8BitNameString({ data, position }) {
     return output;
 }
 
-function parseMapDataTypeEntry({
-    i,
-    data,
-    properties,
-    size,
-}) {
+function parseMapDataTypeEntry({ i, data, properties, size }) {
     const entry = {};
 
     let position = 0;
     for (let j = 0; j < properties.length; j++) {
-        const {
-            name,
-            format = 'Uint16',
-            littleEndian = true,
-        } = properties[j];
+        const { name, format = 'Uint16', littleEndian = true } = properties[j];
 
         if (format === 'name') {
             entry[name] = get8BitNameString({ data, position });
@@ -224,8 +202,8 @@ function parseMapDataTypeEntry({
         } else {
             const propertySize = format.replace(/\D/g, '') / 8;
             entry[name] = data[`get${format}`](
-                (i * size) + position,
-                littleEndian,
+                i * size + position,
+                littleEndian
             );
             position += propertySize;
         }
@@ -241,9 +219,9 @@ function parseMapDataType({ dataType, data, mapFormat }) {
 
     let schemas = MAP_DATA_SCHEMAS;
 
-    if (mapFormat === 'Hexen' && (
-        dataType === 'THINGS'
-        || dataType === 'LINEDEFS')
+    if (
+        mapFormat === 'Hexen' &&
+        (dataType === 'THINGS' || dataType === 'LINEDEFS')
     ) {
         console.log('Hexen map detected.');
         schemas = HEXEN_MAP_DATA_SCHEMAS;
@@ -269,7 +247,7 @@ function parseMapDataType({ dataType, data, mapFormat }) {
             i,
             data,
             properties,
-            size,
+            size
         });
 
         mapDataType.push(mapDataTypeEntry);
@@ -288,29 +266,24 @@ function parseMapData({ data, mapFormat }) {
         const parsedData = parseMapDataType({
             dataType,
             data: data[dataType].data,
-            mapFormat,
+            mapFormat
         });
         mapData[dataType] = parsedData;
     }
 
-
     return mapData;
 }
 
-onmessage = async (message) => {
+onmessage = async message => {
     try {
         const {
             wadId,
             lump,
             mapFormat, // not used for now
-            palette,
+            palette
         } = message.data;
 
-        const {
-            name,
-            type,
-            data,
-        } = lump;
+        const { name, type, data } = lump;
 
         // console.log(`Parsing map '${type}/${name}' (WAD: '${wadId}') ...`);
 
@@ -324,23 +297,26 @@ onmessage = async (message) => {
                     mapData,
                     mapFormat,
                     mapSizeData,
-                    palette,
+                    palette
                 });
 
                 mapData = {
                     ...mapData,
                     ...mapSizeData,
-                    preview: mapPreview,
+                    preview: mapPreview
                 };
             }
         } catch (error) {
-            console.error(`An error occurred while parsing map '${type}/${name}' (WAD: '${wadId}').`, { error });
+            console.error(
+                `An error occurred while parsing map '${type}/${name}' (WAD: '${wadId}').`,
+                { error }
+            );
 
             postMessage({
                 wadId,
                 lumpId: name,
                 lumpType: type,
-                error: error.message,
+                error: error.message
             });
 
             return;
@@ -354,7 +330,7 @@ onmessage = async (message) => {
             wadId,
             lumpId: name,
             lumpType: type,
-            output: mapData,
+            output: mapData
         });
 
         // garbage collection

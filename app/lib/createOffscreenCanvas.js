@@ -6,6 +6,6 @@ export default ({ height, width }) => {
 
     return {
         canvas,
-        context,
+        context
     };
 };

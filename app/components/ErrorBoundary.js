@@ -14,8 +14,8 @@ const localStorageManager = new LocalStorageManager();
 export default class ErrorBoundary extends Component {
     state = {
         displayError: {},
-        settings: { theme: 'dark' },
-    }
+        settings: { theme: 'dark' }
+    };
 
     async componentDidMount() {
         const { result: settings } = await this.getSettingsFromLocalMemory();
@@ -23,19 +23,22 @@ export default class ErrorBoundary extends Component {
         this.setState(prevState => ({
             settings: {
                 ...prevState.settings,
-                ...settings && { ...settings },
-            },
+                ...(settings && { ...settings })
+            }
         }));
     }
 
-    getSettingsFromLocalMemory = async () => localStorageManager.get('settings')
+    getSettingsFromLocalMemory = async () =>
+        localStorageManager.get('settings');
 
     getThemeClass = () => {
-        const { settings: { theme } } = this.state;
+        const {
+            settings: { theme }
+        } = this.state;
         const themeClass = `${theme}-theme`;
         const themeClassRules = style[themeClass];
         return themeClassRules;
-    }
+    };
 
     componentDidCatch(error, info) {
         document.title = `${prefixWindowtitle} / oops!`;
@@ -44,10 +47,7 @@ export default class ErrorBoundary extends Component {
 
     render() {
         const { children } = this.props;
-        const {
-            displayError,
-            settings,
-        } = this.state;
+        const { displayError, settings } = this.state;
 
         if (displayError.error) {
             return (
@@ -58,36 +58,49 @@ export default class ErrorBoundary extends Component {
                             <div className={style.errorScreenInner}>
                                 <div className={style.errorMessage}>
                                     <h2>An error occurred :(</h2>
-                                    Please use the message below to
-                                    {' '}
-                                    <a target="_blank" rel="noopener noreferrer" href={ISSUES}>report the issue</a>
-                                    {' '}
+                                    Please use the message below to{' '}
+                                    <a
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        href={ISSUES}
+                                    >
+                                        report the issue
+                                    </a>{' '}
                                     on GitHub.
                                 </div>
                                 <code>
-                                    Error:
-                                    {' '}
-                                    {displayError.error.message}
+                                    Error: {displayError.error.message}
                                     <br />
                                     <br />
-                                    {displayError.error.stack && displayError.error.stack.split('\n').map((stack, index) => (
-                                        <Fragment key={index}>
-                                            {stack.replace('webpack-internal:///', '').replace('@', ' @ ')}
-                                            <br />
-                                        </Fragment>
-                                    ))}
-                                    {displayError.info.componentStack && displayError.info.componentStack.split('\n').map((stack, index) => (
-                                        <Fragment key={index}>
-                                            {stack}
-                                            <br />
-                                        </Fragment>
-                                    ))}
+                                    {displayError.error.stack &&
+                                        displayError.error.stack
+                                            .split('\n')
+                                            .map((stack, index) => (
+                                                <Fragment key={index}>
+                                                    {stack
+                                                        .replace(
+                                                            'webpack-internal:///',
+                                                            ''
+                                                        )
+                                                        .replace('@', ' @ ')}
+                                                    <br />
+                                                </Fragment>
+                                            ))}
+                                    {displayError.info.componentStack &&
+                                        displayError.info.componentStack
+                                            .split('\n')
+                                            .map((stack, index) => (
+                                                <Fragment key={index}>
+                                                    {stack}
+                                                    <br />
+                                                </Fragment>
+                                            ))}
                                     <br />
-                                    URL:
-                                    {' '}
-                                    {document.location.href}
+                                    URL: {document.location.href}
                                 </code>
-                                <a className={style.errorBackLink} href="/">Reload the app.</a>
+                                <a className={style.errorBackLink} href="/">
+                                    Reload the app.
+                                </a>
                             </div>
                         </div>
                     </div>
