@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.2.0/workbox-sw.js");
 
 importScripts(
-  "dist/precache-manifest.e80287eebc707e81130c805ce8a6fa99.js"
+  "dist/precache-manifest.ff462e5a51eae90990886bbf0a1a83de.js"
 );
 
 self.addEventListener('message', (event) => {
@@ -46,10 +46,6 @@ self.__precacheManifest = [
   {
     "url": "public/freedoom2.wad",
     "revision": "984f99af08f085e38070f51095ab7c31"
-  },
-  {
-    "url": "public/midi/libtimidity.js",
-    "revision": "87ff8b9139fc419697ed9a90e61196e5"
   },
   {
     "url": "public/midi/pat/arachno-0.pat",
