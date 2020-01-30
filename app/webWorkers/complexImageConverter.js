@@ -4,6 +4,13 @@ import convertColorIndexesReferencesToBlob from '../lib/convertColorIndexesRefer
 
 import { getCacheItemAsBlob, setCacheItemAsBlob } from '../lib/cacheManager';
 
+/**
+ *
+ * @param {ArrayBuffer} data
+ * @param {Number} width
+ * @param {Number} height
+ */
+
 function buildColorIndexReferences(data, width, height) {
     try {
         const colorIndexes = [];
