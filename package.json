@@ -2,10 +2,18 @@
     "name": "wadjs",
     "name-display": "wadJS",
     "version": "0.4.1",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/yvesgurcan/wadjs"
+    "description": "🏗️ A GUI to edit Doom WADs in your browser.",
+    "keywords": [
+        "javascript",
+        "doom",
+        "video-game",
+        "midi"
+    ],
+    "homepage": "https://github.com/yvesgurcan/wadjs",
+    "bugs": {
+        "url": "https://github.com/yvesgurcan/wadjs/issues"
     },
+    "license": "MIT",
     "author": {
         "name": "jmickle66666666"
     },
@@ -15,14 +23,17 @@
             "email": "gurcan.yves@gmail.com"
         }
     ],
-    "homepage": "https://github.com/yvesgurcan/wadjs",
-    "bugs": {
-        "url": "https://github.com/yvesgurcan/wadjs/issues"
+    "directories": {
+        "lib": "./src",
+        "doc": "./doc"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yvesgurcan/wadjs"
     },
     "scripts": {
         "start": "npm run start:dev",
         "start:dev": "echo \"Bundle Analyzer: \\033[35mhttp://localhost:8888\\033[0m\"; TARGET=development webpack-dev-server app --mode development --progress",
-        "start:no-brand": "TARGET=development-no-brand webpack-dev-server app --mode development --progress",
         "start:prod": "TARGET=development webpack-dev-server app --mode production --progress",
         "build": "TARGET=build webpack app --mode production",
         "lint": "prettier --write app/**/*.js"
@@ -52,7 +63,7 @@
         "webpack": "^4.41.5",
         "webpack-bundle-analyzer": "^3.6.0",
         "webpack-cli": "^3.3.10",
-        "webpack-dev-server": "^3.2.1",
+        "webpack-dev-server": "^3.10.1",
         "workbox-webpack-plugin": "^4.2.0",
         "worker-loader": "^2.0.0"
     },
@@ -67,6 +78,6 @@
         "react-pose": "^4.0.10",
         "react-router-dom": "^4.3.1",
         "react-router-prop-types": "^1.0.4",
-        "web-midi-player": "^1.0.3"
+        "web-midi-player": "^1.1.19"
     }
 }

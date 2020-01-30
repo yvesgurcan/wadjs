@@ -8,6 +8,7 @@ import { getCacheItemAsArrayBuffer } from '../../lib/cacheManager';
 
 import {
     MIDI_PLAYER_MESSAGE_PREFIX,
+    MIDI_PATCH_URL,
     MIDI_STATUS,
     MIDI_ERROR,
     MIDI_PLAY,
@@ -15,7 +16,6 @@ import {
     PCM_PLAYER_MESSAGE_PREFIX,
     PCM_STATUS,
     PCM_ERROR,
-    PCM_PLAY,
     PCM_END
 } from '../../lib/constants';
 
@@ -72,9 +72,9 @@ export default class MediaPlayer extends Component {
     };
 
     initMidiPlayer = () => {
-        console.log(MidiPlayer);
         this.midiPlayer = new MidiPlayer({
-            eventLogger: this.handleMidiPlayerEvent
+            eventLogger: this.handleMidiPlayerEvent,
+            patchUrl: MIDI_PATCH_URL
         });
     };
 
@@ -371,9 +371,7 @@ export default class MediaPlayer extends Component {
             });
             if (!arrayBuffer) {
                 console.error(
-                    `Could not find cache item '${lump.type}/${
-                        lump.name
-                    }' in ${wadId}.`
+                    `Could not find cache item '${lump.type}/${lump.name}' in ${wadId}.`
                 );
             }
         }
@@ -447,9 +445,7 @@ export default class MediaPlayer extends Component {
                 });
                 if (!arrayBuffer) {
                     console.error(
-                        `Could not find cache item '${
-                            selectedMidi.data
-                        }' in ${wadId}.`
+                        `Could not find cache item '${selectedMidi.data}' in ${wadId}.`
                     );
                 }
             }
