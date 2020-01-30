@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.2.0/workbox-sw.js");
 
 importScripts(
-  "dist/precache-manifest.33f59e9251212b77ba1d6a4f0614efb7.js"
+  "dist/precache-manifest.bf77430b27fa509ec9edf660344947b9.js"
 );
 
 self.addEventListener('message', (event) => {
@@ -560,6 +560,10 @@ self.__precacheManifest = [
     "revision": "6c11a9f169c92bc1d3ecc83e28e26de6"
   },
   {
+    "url": "public/midi/pat/LICENSE",
+    "revision": "047478d94c84e5708ba8adcf8828d1aa"
+  },
+  {
     "url": "public/midi/pat/MT32Drums/mt32drum-0.pat",
     "revision": "809a9600df273b091644e88de98749ca"
   },
@@ -746,10 +750,6 @@ self.__precacheManifest = [
   {
     "url": "public/midi/pat/MT32Drums/mt32drum-9.pat",
     "revision": "04d41bce709b5bcf679e4f11526d5040"
-  },
-  {
-    "url": "public/midi/README.md",
-    "revision": "264b20519c9fa12474de21c2a787a071"
   },
   {
     "url": "public/scythe.zip",
