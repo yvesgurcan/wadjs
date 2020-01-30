@@ -1,7 +1,7 @@
 {
     "name": "wadjs",
     "name-display": "wadJS",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "description": "🏗️ A GUI to edit Doom WADs in your browser.",
     "keywords": [
         "javascript",
