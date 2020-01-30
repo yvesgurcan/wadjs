@@ -10,9 +10,9 @@ export default class MapParser extends PCMConverter {
         this.startWorker({
             workerId: 'mapParser',
             workerClass: mapParser,
-            onmessage: this.saveParsedMap,
+            onmessage: this.saveParsedMap
         });
-    }
+    };
 
     addToMapParserQueue({ wad }) {
         this.createAndStartQueue({
@@ -21,80 +21,78 @@ export default class MapParser extends PCMConverter {
             targetObject: 'maps',
             lumpCheck: lump => lump.type === 'maps',
             handleNextLump: this.sendNextMapLump,
-            wad,
+            wad
         });
     }
 
-    cloneLump = (lump) => {
+    cloneLump = lump => {
         const data = lump && cloneDataView(lump.data);
 
         const updatedLump = new Lump();
         updatedLump.setIndexData({ ...lump, data });
         return updatedLump;
-    }
+    };
 
     sendNextMapLump = ({ nextLump, nextWadId }) => {
-        this.catchErrors(() => {
-            const { wads } = this.state;
-            const nextWad = wads[nextWadId];
+        this.catchErrors(
+            () => {
+                const { wads } = this.state;
+                const nextWad = wads[nextWadId];
 
-            let nextLumpInQueue = {};
-            if (!nextLump && nextWadId) {
-                const result = this.getNextItemInQueue({
-                    targetObject: 'mapParser',
+                let nextLumpInQueue = {};
+                if (!nextLump && nextWadId) {
+                    const result = this.getNextItemInQueue({
+                        targetObject: 'mapParser',
+                        wadId: nextWadId
+                    });
+
+                    nextLumpInQueue = result.nextLump;
+                }
+
+                const { name, type, data } = nextLump || nextLumpInQueue;
+
+                const { SECTORS, LINEDEFS, SIDEDEFS, VERTEXES, THINGS } = data;
+
+                const clones = {};
+                clones.SECTORS = this.cloneLump(SECTORS);
+                clones.LINEDEFS = this.cloneLump(LINEDEFS);
+                clones.SIDEDEFS = this.cloneLump(SIDEDEFS);
+                clones.VERTEXES = this.cloneLump(VERTEXES);
+                clones.THINGS = this.cloneLump(THINGS);
+
+                const trimmedLump = {
+                    name,
+                    type,
+                    data: {
+                        SECTORS: clones.SECTORS,
+                        LINEDEFS: clones.LINEDEFS,
+                        SIDEDEFS: clones.SIDEDEFS,
+                        VERTEXES: clones.VERTEXES,
+                        THINGS: clones.THINGS
+                    }
+                };
+
+                const c = Object.keys(clones).map(
+                    cloneId => clones[cloneId].data
+                );
+
+                // console.log({ clones });
+
+                this.mapParser.postMessage({
                     wadId: nextWadId,
+                    lump: trimmedLump,
+                    palette: nextWad && nextWad.palette
                 });
-
-                nextLumpInQueue = result.nextLump;
+            },
+            () => this.restartConvertingWads({ nextLump, nextWadId }),
+            {
+                displayErrorMessage:
+                    this.mapParserRetries === WEB_WORKER_MAX_RETRIES
             }
+        );
+    };
 
-            const {
-                name,
-                type,
-                data,
-            } = nextLump || nextLumpInQueue;
-
-            const {
-                SECTORS,
-                LINEDEFS,
-                SIDEDEFS,
-                VERTEXES,
-                THINGS,
-            } = data;
-
-            const clones = {};
-            clones.SECTORS = this.cloneLump(SECTORS);
-            clones.LINEDEFS = this.cloneLump(LINEDEFS);
-            clones.SIDEDEFS = this.cloneLump(SIDEDEFS);
-            clones.VERTEXES = this.cloneLump(VERTEXES);
-            clones.THINGS = this.cloneLump(THINGS);
-
-            const trimmedLump = {
-                name,
-                type,
-                data: {
-                    SECTORS: clones.SECTORS,
-                    LINEDEFS: clones.LINEDEFS,
-                    SIDEDEFS: clones.SIDEDEFS,
-                    VERTEXES: clones.VERTEXES,
-                    THINGS: clones.THINGS,
-                },
-            };
-
-            const c = Object.keys(clones).map(cloneId => clones[cloneId].data);
-
-            console.log({ clones });
-
-            this.mapParser.postMessage({
-                wadId: nextWadId,
-                lump: trimmedLump,
-                palette: nextWad && nextWad.palette,
-            });
-        }, () => this.restartConvertingWads({ nextLump, nextWadId }),
-        { displayErrorMessage: this.mapParserRetries === WEB_WORKER_MAX_RETRIES });
-    }
-
-    saveParsedMap = (payload) => {
+    saveParsedMap = payload => {
         const { output } = payload.data;
 
         let payloadWithBlobUrl = {};
@@ -109,30 +107,30 @@ export default class MapParser extends PCMConverter {
                     ...payload.data,
                     output: {
                         ...payload.data.output,
-                        preview: blobUrl,
-                    },
-                },
+                        preview: blobUrl
+                    }
+                }
             };
         }
 
         this.saveConvertedLump({
             targetObject: 'maps',
             handleNextLump: this.sendNextMapLump,
-            payload: payloadWithBlobUrl,
+            payload: payloadWithBlobUrl
         });
-    }
+    };
 
-    restartMapParserWorker = (nextPayload) => {
+    restartMapParserWorker = nextPayload => {
         this.addGlobalMessage({
             type: 'info',
             id: 'mp',
-            text: 'Restarting mapParser...',
+            text: 'Restarting mapParser...'
         });
 
         this.restartWebWorker({
             workerId: 'mapParser',
             workerStarter: this.startMapParserWorker,
-            sendNextLump: () => this.sendNextMapLump(nextPayload),
+            sendNextLump: () => this.sendNextMapLump(nextPayload)
         });
-    }
+    };
 }
