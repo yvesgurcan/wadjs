@@ -36,7 +36,9 @@
         "start:dev": "echo \"Bundle Analyzer: \\033[35mhttp://localhost:8888\\033[0m\"; TARGET=development webpack-dev-server app --mode development --progress",
         "start:prod": "TARGET=development webpack-dev-server app --mode production --progress",
         "build": "TARGET=build webpack app --mode production",
-        "lint": "prettier --write app/**/*.js"
+        "lint": "prettier --write app/**/*.js",
+        "docs": "documentation build app/index.js -f html -o doc",
+        "docs:watch": "documentation serve --watch app/index.js"
     },
     "devDependencies": {
         "@babel/core": "^7.3.4",
@@ -69,6 +71,7 @@
     },
     "dependencies": {
         "axios": "^0.18.1",
+        "documentation": "^12.1.4",
         "jszip": "^3.2.0",
         "localforage": "^1.7.3",
         "moment": "^2.24.0",
