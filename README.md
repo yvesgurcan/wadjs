@@ -9,7 +9,7 @@ Edit Doom WAD files in your browser.
 -   [Changelog](/doc/CHANGELOG.md)
 -   [Specifications](/doc/SPECS.md)
 -   [To Do list](/doc/TODO)
--   [JSDoc](/doc)
+-   [JSDoc](https://wad.yvesgurcan.com/doc/)
 
 ## Development
 
