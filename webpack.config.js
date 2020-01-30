@@ -84,7 +84,6 @@ module.exports = () => ({
                         options: {
                             modules: true,
                             importLoaders: 1,
-                            localIdentName: '[local]_[hash:base64]',
                             sourceMap: true
                         }
                     },
