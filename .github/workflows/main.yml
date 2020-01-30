@@ -1,17 +1,36 @@
-name: CI
+name: Release
 
-on: [push]
+on:
+    pull_request:
+        types: closed
+        branches:
+            - master
 
 jobs:
-  build:
+    release:
+        name: Create release
+        if: github.event.pull_request.merged
+        runs-on: ubuntu-latest
+        steps:
+          - name: Set up workflow
+            uses: actions/checkout@v2
+          - name: Set up Node
+            uses: actions/setup-node@v1
+            with:
+                node-version: 12
+                registry-url: https://registry.npmjs.org/
+          - name: Tag the library
+            id: autotag
+            uses: butlerlogic/action-autotag@stable
+            with:
+              GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+              tag_prefx: "v"
+          - name: GitHub release
+            uses: marvinpinto/action-automatic-releases@latest
+            with:
+              repo_token: ${{ secrets.GITHUB_TOKEN }}
+              automatic_release_tag: ${{ steps.autotag.outputs.version }}
+              prerelease: false
 
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
