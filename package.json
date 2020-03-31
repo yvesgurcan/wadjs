@@ -50,7 +50,7 @@
         "@babel/runtime": "^7.3.4",
         "babel-eslint": "^10.0.1",
         "babel-loader": "^8.0.6",
-        "browserify": "^13.3.0",
+        "browserify": "^16.5.1",
         "clean-webpack-plugin": "^2.0.1",
         "css-loader": "^3.4.2",
         "file-loader": "^5.0.2",
