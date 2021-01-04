@@ -70,7 +70,7 @@
         "worker-loader": "^2.0.0"
     },
     "dependencies": {
-        "axios": "^0.18.1",
+        "axios": "^0.21.1",
         "documentation": "^12.1.4",
         "jszip": "^3.2.0",
         "localforage": "^1.7.3",
